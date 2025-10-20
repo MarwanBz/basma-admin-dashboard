@@ -1,19 +1,28 @@
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig } from "axios";
 
 import { clearTokens } from "@apis/token";
+import { getTokens } from "@apis/token";
 
 export const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "/api";
 
 function createAxiosClient(): AxiosInstance {
   const instance = axios.create({
     baseURL: API_BASE_URL,
-    withCredentials: true,
+    withCredentials: false,
     headers: {
       "Content-Type": "application/json",
     },
   });
 
-  // With cookie-based auth (HTTP-only), credentials are sent via cookies (withCredentials=true).
+  // Add token to every request
+  instance.interceptors.request.use(async (config) => {
+    const tokens = await getTokens();
+
+    if (tokens.accessToken) {
+      config.headers.Authorization = `Bearer ${tokens.accessToken}`;
+    }
+    return config;
+  });
 
   instance.interceptors.response.use(
     (response) => response,
