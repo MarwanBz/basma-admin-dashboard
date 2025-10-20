@@ -10,10 +10,11 @@ const REFRESH_TOKEN_KEY = "refresh_token";
 
 // Default secure cookie options for HTTP-only cookies
 const defaultCookieOptions = {
-  httpOnly: true,
+  httpOnly: false,
   secure: process.env.NODE_ENV === "production",
-  sameSite: "strict" as const,
+  sameSite: "lax" as const, // Changed from "strict" to "lax"
   path: "/",
+  domain: undefined, // Let browser set default domain
 };
 
 /**
