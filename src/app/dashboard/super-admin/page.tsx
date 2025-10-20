@@ -1,8 +1,9 @@
 "use client"
 
-import { Button } from "@/components/ui/button"
+import { ArrowLeft, ArrowRight, BarChart3, Building, Database, Home, LogOut, Settings, Shield, Users } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { ArrowRight, BarChart3, Building, Home, LogOut, Settings, Users, Shield, Database } from "lucide-react"
+
+import { Button } from "@/components/ui/button"
 import { useRouter } from "next/navigation"
 
 export default function SuperAdminDashboard() {
@@ -30,7 +31,7 @@ export default function SuperAdminDashboard() {
     {
       title: "معدل النظام",
       value: "99.8%",
-      description="وقت التشغيل",
+      description:"وقت التشغيل",
       icon: <Shield className="h-6 w-6" />,
       color: "text-orange-600"
     },

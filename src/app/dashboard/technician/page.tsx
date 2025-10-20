@@ -1,8 +1,9 @@
 "use client"
 
-import { Button } from "@/components/ui/button"
+import { ArrowLeft, ArrowRight, Calendar, CheckCircle, Clock, Home, LogOut, MapPin, Wrench } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { ArrowRight, Calendar, CheckCircle, Clock, Home, LogOut, MapPin, Wrench } from "lucide-react"
+
+import { Button } from "@/components/ui/button"
 import { useRouter } from "next/navigation"
 
 export default function TechnicianDashboard() {
@@ -37,14 +38,14 @@ export default function TechnicianDashboard() {
     {
       title: "وقت الاستجابة",
       value: "15 دقيقة",
-      description="متوسط الوقت",
+      description:"متوسط الوقت",
       icon: <Clock className="h-6 w-6" />,
       color: "text-orange-600"
     },
     {
       title: "تقييم العملاء",
       value: "4.8/5",
-      description="متوسط التقييم",
+      description:"متوسط التقييم",
       icon: <Wrench className="h-6 w-6" />,
       color: "text-purple-600"
     }
