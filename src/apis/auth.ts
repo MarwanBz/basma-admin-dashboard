@@ -1,7 +1,7 @@
 import { apiClient } from "./client";
 
 // User role type
-export type UserRole = "SUPER_ADMIN" | "ADMIN" | "TECHNICIAN" | "BASMA";
+export type UserRole = "SUPER_ADMIN" | "MAINTENANCE_ADMIN" | "BASMA_ADMIN";
 
 // User type definition
 export interface User {
