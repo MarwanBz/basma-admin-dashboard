@@ -39,7 +39,7 @@ export async function login(
   email: string,
   password: string
 ): Promise<LoginResponse> {
-  const response = await apiClient.post<LoginResponse>("api/auth/login", {
+  const response = await apiClient.post<LoginResponse>("auth/login", {
     email,
     password,
   });
