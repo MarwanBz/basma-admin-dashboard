@@ -5,11 +5,18 @@ export interface User {
   name: string;
   email: string;
   role: UserRole;
+  emailVerified: string | null;
   createdAt: string;
   updatedAt: string;
 }
 
-export type UserRole = "CUSTOMER" | "TECHNICIAN" | "BASMA_ADMIN";
+export type UserRole =
+  | "CUSTOMER"
+  | "TECHNICIAN"
+  | "BASMA_ADMIN"
+  | "MAINTENANCE_ADMIN"
+  | "SUPER_ADMIN"
+  | "USER";
 
 export interface UserFormData {
   name: string;
@@ -39,6 +46,22 @@ export interface ApiResponse<T> {
   data: T;
   requestId: string;
 }
+
+// Pagination types
+export interface Pagination {
+  page: number;
+  limit: number;
+  total: number;
+  pages: number;
+}
+
+// Users list response types
+export interface UsersResponse {
+  users: User[];
+  pagination: Pagination;
+}
+
+export interface GetUsersResponse extends ApiResponse<UsersResponse> {}
 
 export interface FormErrors {
   [key: string]: string;
