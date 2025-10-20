@@ -152,9 +152,10 @@ export default function MaintenanceDashboard() {
             <Button
               variant="ghost"
               className="w-full justify-start flex-row-reverse"
+              onClick={() => router.push("/dashboard/users")}
             >
               <Users className="ml-2 h-4 w-4" />
-              الفنيون
+              إدارة المستخدمين
             </Button>
             <Button
               variant="ghost"
