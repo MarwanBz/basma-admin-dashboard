@@ -1,53 +1,77 @@
-"use client"
+"use client";
 
-import type React from "react"
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { ArrowRight, Lock, Mail } from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { ArrowRight, Lock, User } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import type React from "react";
+import { setTokens } from "@/apis/token";
+import { useAuth } from "@/hooks/useAuth";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+
+const ROLE_REDIRECT_MAP: Record<string, string> = {
+  SUPER_ADMIN: "/dashboard/super-admin",
+  MAINTENANCE_ADMIN: "/dashboard/maintenance",
+  BASMA_ADMIN: "/dashboard/basma",
+};
 
 export default function DashboardLogin() {
-  const router = useRouter()
-  const [username, setUsername] = useState("")
-  const [password, setPassword] = useState("")
-  const [error, setError] = useState("")
-  const [loading, setLoading] = useState(false)
+  const router = useRouter();
+  const { mutate, isPending, isError, error } = useAuth();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
-    setError("")
+    e.preventDefault();
 
-    // Mock authentication - in a real app, this would be an API call
-    setTimeout(() => {
-      if (username.toLowerCase() === "maintenance" && password) {
-        // Redirect to maintenance manager dashboard
-        router.push("/dashboard/maintenance")
-      } else if (username.toLowerCase() === "basma" && password) {
-        // Redirect to basma manager dashboard
-        router.push("/dashboard/basma")
-      } else if (username.toLowerCase() === "super" && password) {
-        // Redirect to super admin dashboard
-        router.push("/dashboard/super-admin")
-      } else if (username.toLowerCase() === "technician" && password) {
-        // Redirect to technician dashboard
-        router.push("/dashboard/technician")
-      } else {
-        setError("اسم المستخدم أو كلمة المرور غير صحيحة")
+    mutate(
+      { email, password },
+      {
+        onSuccess: async (response) => {
+          const { user, accessToken, refreshToken } = response.data;
+
+          // Store tokens in cookies
+          await setTokens({ accessToken, refreshToken });
+
+          // Store user data in sessionStorage for useRoleGuard
+          sessionStorage.setItem(
+            "basma_user",
+            JSON.stringify({
+              id: user.id,
+              roles: [user.role], // Store as array for useRoleGuard
+              email: user.email,
+              name: user.name,
+            })
+          );
+
+          // Redirect based on role
+          const redirectPath =
+            ROLE_REDIRECT_MAP[user.role] || "/dashboard/super-admin";
+          router.push(redirectPath);
+        },
       }
-      setLoading(false)
-    }, 1000)
-  }
+    );
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <div className="flex items-center p-4 border-b bg-white">
-        <Button variant="ghost" size="icon" onClick={() => router.push("/")} className="p-2">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => router.push("/")}
+          className="p-2"
+        >
           <ArrowRight className="h-6 w-6" />
         </Button>
         <div className="flex-1 flex justify-center">
@@ -61,29 +85,39 @@ export default function DashboardLogin() {
       <div className="flex-1 flex items-center justify-center p-6">
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl mb-2">تسجيل الدخول للوحة التحكم</CardTitle>
-            <CardDescription>الرجاء إدخال بيانات الدخول للوصول إلى لوحة التحكم</CardDescription>
+            <CardTitle className="text-2xl mb-2">
+              تسجيل الدخول للوحة التحكم
+            </CardTitle>
+            <CardDescription>
+              الرجاء إدخال بيانات الدخول للوصول إلى لوحة التحكم
+            </CardDescription>
           </CardHeader>
 
           <CardContent>
-            {error && (
+            {isError && (
               <Alert variant="destructive" className="mb-6">
-                <AlertDescription>{error}</AlertDescription>
+                <AlertDescription>
+                  {error instanceof Error
+                    ? error.message
+                    : "حدث خطأ أثناء تسجيل الدخول"}
+                </AlertDescription>
               </Alert>
             )}
 
             <form onSubmit={handleLogin} className="space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="username">اسم المستخدم</Label>
+                <Label htmlFor="email">البريد الإلكتروني</Label>
                 <div className="relative">
-                  <User className="absolute top-1/2 right-3 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                  <Mail className="absolute top-1/2 right-3 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
                   <Input
-                    id="username"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
+                    id="email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     required
                     className="pr-10"
-                    placeholder="أدخل اسم المستخدم"
+                    placeholder="أدخل البريد الإلكتروني"
+                    disabled={isPending}
                   />
                 </div>
               </div>
@@ -100,12 +134,13 @@ export default function DashboardLogin() {
                     required
                     className="pr-10"
                     placeholder="أدخل كلمة المرور"
+                    disabled={isPending}
                   />
                 </div>
               </div>
 
-              <Button type="submit" disabled={loading} className="w-full">
-                {loading ? (
+              <Button type="submit" disabled={isPending} className="w-full">
+                {isPending ? (
                   <>
                     <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin ml-2"></span>
                     جاري تسجيل الدخول...
@@ -114,19 +149,10 @@ export default function DashboardLogin() {
                   "تسجيل الدخول"
                 )}
               </Button>
-
-              <div className="text-center text-sm text-muted-foreground bg-gray-50 p-4 rounded-lg">
-                <p className="font-semibold mb-2">بيانات الدخول التجريبية:</p>
-                <p>مدير الصيانة: "maintenance"</p>
-                <p>مدير بسمة: "basma"</p>
-                <p>المدير التنفيذي: "super"</p>
-                <p>الفني: "technician"</p>
-                <p className="text-xs mt-2 text-muted-foreground">يمكن استخدام أي كلمة مرور</p>
-              </div>
             </form>
           </CardContent>
         </Card>
       </div>
     </div>
-  )
+  );
 }
