@@ -167,3 +167,50 @@
 [dir="rtl"] .flex-row {
   flex-direction: row;
 }
+
+/* RTL Sidebar specific styles */
+[dir="rtl"] [data-sidebar="menu-button"] {
+  flex-direction: row-reverse;
+  justify-content: flex-end;
+}
+
+[dir="rtl"] [data-sidebar="menu-sub"] {
+  border-left: none;
+  border-right: 1px solid hsl(var(--sidebar-border));
+  padding-left: 0;
+  padding-right: 0.625rem;
+  margin-left: 0;
+  margin-right: 0.875rem;
+}
+
+/* RTL Sidebar trigger positioning */
+[dir="rtl"] [data-sidebar="trigger"] {
+  margin-left: 0;
+  margin-right: -0.25rem;
+}
+
+/* RTL Sidebar content alignment */
+[dir="rtl"] [data-sidebar="content"] {
+  text-align: right;
+}
+
+/* RTL Sidebar menu items */
+[dir="rtl"] [data-sidebar="menu-item"] {
+  text-align: right;
+}
+
+/* RTL Sidebar icons positioning */
+[dir="rtl"] [data-sidebar="menu-button"] svg {
+  margin-left: 0.5rem;
+  margin-right: 0;
+}
+
+/* RTL Sidebar header alignment */
+[dir="rtl"] [data-sidebar="header"] {
+  text-align: right;
+}
+
+/* RTL Sidebar footer alignment */
+[dir="rtl"] [data-sidebar="footer"] {
+  text-align: right;
+}
