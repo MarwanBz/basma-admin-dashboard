@@ -2,12 +2,14 @@
 
 import {
   AddRequestModal,
+  AssignTechnicianModal,
   DeleteRequestModal,
   EditRequestModal,
   RequestDetailsModal,
   RequestsTable,
 } from "./_components";
 import {
+  useAssignTechnician,
   useCreateRequest,
   useDeleteRequest,
   useRequests,
@@ -19,6 +21,7 @@ import { Loading } from "./_components/loading";
 import { MaintenanceRequest } from "@/types/request";
 import { Plus } from "lucide-react";
 import { useState } from "react";
+import { useTechnicians } from "@/hooks/useTechnicians";
 
 export default function MaintenanceRequests() {
   // State management
@@ -28,14 +31,18 @@ export default function MaintenanceRequests() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [showAssignModal, setShowAssignModal] = useState(false);
   const [selectedRequest, setSelectedRequest] =
     useState<MaintenanceRequest | null>(null);
 
   // API hooks
   const { data: requestsData, isLoading } = useRequests();
+  const { data: techniciansData, isLoading: isLoadingTechnicians } =
+    useTechnicians();
   const createRequestMutation = useCreateRequest();
   const updateRequestMutation = useUpdateRequest();
   const deleteRequestMutation = useDeleteRequest();
+  const assignTechnicianMutation = useAssignTechnician();
 
   // Filter requests based on active filter and search query
   const filteredRequests = (requestsData || []).filter((request) => {
@@ -152,8 +159,26 @@ export default function MaintenanceRequests() {
   };
 
   const handleAssignRequest = (requestId: string) => {
-    // TODO: Implement assign functionality
-    console.log("Assign request:", requestId);
+    const request = requestsData?.find((r) => r.id === requestId);
+    if (request) {
+      setSelectedRequest(request);
+      setShowAssignModal(true);
+    }
+  };
+
+  const handleAssignTechnician = async (technicianId: string) => {
+    if (selectedRequest) {
+      try {
+        await assignTechnicianMutation.mutateAsync({
+          requestId: selectedRequest.id,
+          assignedToId: technicianId,
+        });
+        setShowAssignModal(false);
+        setSelectedRequest(null);
+      } catch (error) {
+        console.error("Failed to assign technician:", error);
+      }
+    }
   };
 
   const handleStatusChange = (requestId: string, status: string) => {
@@ -161,7 +186,7 @@ export default function MaintenanceRequests() {
     console.log("Change status:", requestId, status);
   };
 
-  if (isLoading) {
+  if (isLoading || isLoadingTechnicians) {
     return <Loading />;
   }
 
@@ -253,6 +278,14 @@ export default function MaintenanceRequests() {
               onConfirm={handleConfirmDelete}
             />
           )}
+
+          {/* Assign Technician Modal */}
+          <AssignTechnicianModal
+            open={showAssignModal}
+            onOpenChange={setShowAssignModal}
+            technicians={techniciansData?.data?.technicians || []}
+            onSubmit={handleAssignTechnician}
+          />
         </div>
       </main>
     </div>

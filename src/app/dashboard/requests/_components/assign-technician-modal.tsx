@@ -36,9 +36,8 @@ export function AssignTechnicianModal({
 }: AssignTechnicianModalProps) {
   const [selectedTechnician, setSelectedTechnician] = useState("");
 
-  const availableTechnicians = technicians.filter(
-    (tech) => tech.status === "available"
-  );
+  // All technicians are available since API doesn't return status
+  const availableTechnicians = technicians;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -53,21 +52,21 @@ export function AssignTechnicianModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Assign Technician</DialogTitle>
+          <DialogTitle>تعيين فني</DialogTitle>
           <DialogDescription>
-            Select a technician to assign to this maintenance request
+            اختر فني لتعيينه على طلب الصيانة هذا
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="technician">Technician *</Label>
+            <Label htmlFor="technician">الفني *</Label>
             <Select
               value={selectedTechnician}
               onValueChange={setSelectedTechnician}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select a technician" />
+                <SelectValue placeholder="اختر فني" />
               </SelectTrigger>
               <SelectContent>
                 {availableTechnicians.map((technician) => (
@@ -75,7 +74,7 @@ export function AssignTechnicianModal({
                     <div className="flex flex-col">
                       <span className="font-medium">{technician.name}</span>
                       <span className="text-sm text-muted-foreground">
-                        {technician.specialization}
+                        {technician.email}
                       </span>
                     </div>
                   </SelectItem>
@@ -86,7 +85,7 @@ export function AssignTechnicianModal({
 
           {availableTechnicians.length === 0 && (
             <p className="text-sm text-muted-foreground">
-              No available technicians at the moment.
+              لا يوجد فنيون متاحون في الوقت الحالي.
             </p>
           )}
 
@@ -96,7 +95,7 @@ export function AssignTechnicianModal({
               variant="outline"
               onClick={() => onOpenChange(false)}
             >
-              Cancel
+              إلغاء
             </Button>
             <Button
               type="submit"
@@ -104,7 +103,7 @@ export function AssignTechnicianModal({
                 !selectedTechnician || availableTechnicians.length === 0
               }
             >
-              Assign Technician
+              تعيين الفني
             </Button>
           </DialogFooter>
         </form>
