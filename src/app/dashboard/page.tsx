@@ -20,10 +20,12 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { Unauthorized } from "@/components/Unauthorized";
+import { useBuildingStatistics } from "@/hooks/useBuildingConfigs";
 import { useRoleGuard } from "@/hooks/useRoleGuard";
+import { useRouter } from "next/navigation";
 
 export default function DashboardPage() {
-  const { hasAccess, hasAnyRole, isLoading, user } = useRoleGuard([
+  const { hasAccess, hasAnyRole, isLoading } = useRoleGuard([
     "SUPER_ADMIN",
     "BASMA_ADMIN",
     "MAINTENANCE_ADMIN",
@@ -78,6 +80,11 @@ export default function DashboardPage() {
 
 // Super Admin Dashboard Content
 function SuperAdminDashboard() {
+  const router = useRouter();
+  const { data: statsResponse } = useBuildingStatistics();
+
+  const stats = statsResponse?.data;
+
   const systemStats = [
     {
       title: "إجمالي المستخدمين",
@@ -87,11 +94,12 @@ function SuperAdminDashboard() {
       color: "text-blue-600",
     },
     {
-      title: "المنشآت النشطة",
-      value: "8",
-      description: "3 منشآت جديدة هذا الشهر",
+      title: "إجمالي الطلبات",
+      value: stats?.totalRequests || "0",
+      description: "عدد طلبات الصيانة",
       icon: <Building className="h-6 w-6" />,
       color: "text-green-600",
+      clickable: true,
     },
     {
       title: "معدل النظام",
@@ -126,7 +134,17 @@ function SuperAdminDashboard() {
       {/* System Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {systemStats.map((stat, index) => (
-          <Card key={index}>
+          <Card
+            key={index}
+            className={
+              stat.clickable
+                ? "cursor-pointer hover:shadow-lg transition-shadow"
+                : ""
+            }
+            onClick={() =>
+              stat.clickable && router.push("/dashboard/buildings")
+            }
+          >
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
                 {stat.title}
@@ -142,6 +160,93 @@ function SuperAdminDashboard() {
           </Card>
         ))}
       </div>
+
+      {/* Building Statistics Cards */}
+      {stats && stats.totalRequests > 0 && (
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle>ملخص الطلبات</CardTitle>
+            <CardDescription>
+              توزيع طلبات الصيانة حسب الحالة والأولوية
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {/* By Status */}
+              {stats.requestsByStatus && stats.requestsByStatus.length > 0 && (
+                <div>
+                  <p className="text-sm font-semibold mb-2">حسب الحالة</p>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    {stats.requestsByStatus.map((item) => (
+                      <div
+                        key={item.status}
+                        className="p-3 bg-blue-50 rounded-lg border border-blue-200"
+                      >
+                        <p className="text-xs text-gray-600">{item.status}</p>
+                        <p className="text-xl font-bold text-blue-900">
+                          {item._count}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* By Priority */}
+              {stats.requestsByPriority &&
+                stats.requestsByPriority.length > 0 && (
+                  <div>
+                    <p className="text-sm font-semibold mb-2">حسب الأولوية</p>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                      {stats.requestsByPriority.map((item) => (
+                        <div
+                          key={item.priority}
+                          className="p-3 bg-green-50 rounded-lg border border-green-200"
+                        >
+                          <p className="text-xs text-gray-600">
+                            {item.priority}
+                          </p>
+                          <p className="text-xl font-bold text-green-900">
+                            {item._count}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+              {/* Recent Requests Preview */}
+              {stats.recentRequests && stats.recentRequests.length > 0 && (
+                <div>
+                  <p className="text-sm font-semibold mb-2">آخر الطلبات</p>
+                  <div className="space-y-2">
+                    {stats.recentRequests.slice(0, 3).map((request) => (
+                      <div
+                        key={request.id}
+                        className="flex justify-between items-center p-2 bg-gray-50 rounded"
+                      >
+                        <span className="text-sm truncate">
+                          {request.title}
+                        </span>
+                        <span className="text-xs text-gray-500">
+                          {request.status}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+            <Button
+              className="w-full mt-4"
+              onClick={() => router.push("/dashboard/buildings")}
+            >
+              إدارة المنشآت
+              <ArrowLeft className="mr-2 h-4 w-4" />
+            </Button>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Recent Activity */}
       <Card>
