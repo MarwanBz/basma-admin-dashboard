@@ -5,6 +5,7 @@ import {
   GetRequestsResponse,
   MaintenanceRequest,
   UpdateRequestRequest,
+  UpdateStatusRequest,
 } from "@/types/request";
 
 import { apiClient } from "./client";
@@ -73,6 +74,20 @@ export async function assignTechnician(
 ): Promise<ApiResponse<MaintenanceRequest>> {
   const response = await apiClient.post<ApiResponse<MaintenanceRequest>>(
     `requests/${requestId}/assign`,
+    data
+  );
+  return response.data;
+}
+
+/**
+ * Update request status
+ */
+export async function updateRequestStatus(
+  requestId: string,
+  data: UpdateStatusRequest
+): Promise<ApiResponse<MaintenanceRequest>> {
+  const response = await apiClient.patch<ApiResponse<MaintenanceRequest>>(
+    `requests/${requestId}/status`,
     data
   );
   return response.data;

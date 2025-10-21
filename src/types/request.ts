@@ -1,8 +1,10 @@
 export type RequestStatus =
+  | "DRAFT"
   | "SUBMITTED"
   | "ASSIGNED"
   | "IN_PROGRESS"
   | "COMPLETED"
+  | "CLOSED"
   | "REJECTED";
 export type RequestPriority = "LOW" | "MEDIUM" | "HIGH" | "URGENT";
 
@@ -96,6 +98,11 @@ export interface UpdateRequestRequest {
 
 export interface AssignTechnicianRequest {
   assignedToId: string;
+  reason?: string;
+}
+
+export interface UpdateStatusRequest {
+  status: RequestStatus;
   reason?: string;
 }
 
