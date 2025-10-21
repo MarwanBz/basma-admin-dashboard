@@ -50,6 +50,7 @@ export interface MaintenanceRequest {
   _count: {
     comments: number;
   };
+  identifier: string;
 }
 
 export interface Technician {
@@ -79,6 +80,7 @@ export interface CreateRequestRequest {
   specificLocation: string;
   priority: RequestPriority;
   categoryId: number;
+  customIdentifier?: string;
 }
 
 export interface UpdateRequestRequest {
