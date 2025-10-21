@@ -19,12 +19,6 @@ import { useAuth } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-const ROLE_REDIRECT_MAP: Record<string, string> = {
-  SUPER_ADMIN: "/dashboard/super-admin",
-  MAINTENANCE_ADMIN: "/dashboard/maintenance",
-  BASMA_ADMIN: "/dashboard/basma",
-};
-
 export default function DashboardLogin() {
   const router = useRouter();
   const { mutate, isPending, isError, error } = useAuth();
@@ -45,7 +39,7 @@ export default function DashboardLogin() {
 
           // Store user data in sessionStorage for useRoleGuard
           sessionStorage.setItem(
-            "basma_user",
+            "current_user",
             JSON.stringify({
               id: user.id,
               roles: [user.role], // Store as array for useRoleGuard
@@ -54,10 +48,8 @@ export default function DashboardLogin() {
             })
           );
 
-          // Redirect based on role
-          const redirectPath =
-            ROLE_REDIRECT_MAP[user.role] || "/dashboard/super-admin";
-          router.push(redirectPath);
+          // Redirect to unified dashboard (role-based content handled by dashboard layout)
+          router.push("/dashboard");
         },
       }
     );

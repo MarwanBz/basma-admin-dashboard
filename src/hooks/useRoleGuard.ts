@@ -34,7 +34,7 @@ export function useRoleGuard(
     user: providedUser,
     redirectTo = "/unauthorized",
     onUnauthorized,
-    sessionKey = "basma_user",
+    sessionKey = "current_user",
   } = options;
 
   const [user, setUser] = useState<User | null>(providedUser || null);
