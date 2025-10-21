@@ -54,9 +54,9 @@ export interface Technician {
   id: string;
   name: string;
   email: string;
-  specialization: string;
-  status: "available" | "busy" | "on-leave";
-  phone?: string;
+  role: "TECHNICIAN";
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface CreateRequestFormData {
@@ -128,3 +128,12 @@ export interface TabItem {
   id: string;
   label: string;
 }
+
+// Technician API response types
+export interface TechniciansResponse {
+  technicians: Technician[];
+  pagination: Pagination;
+}
+
+export type GetTechniciansResponse = ApiResponse<TechniciansResponse>;
+export type GetTechnicianResponse = ApiResponse<Technician>;
