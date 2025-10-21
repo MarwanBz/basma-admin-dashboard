@@ -1,32 +1,53 @@
 export type RequestStatus =
-  | "pending"
-  | "assigned"
-  | "in-progress"
-  | "completed"
-  | "rejected";
-export type RequestPriority = "low" | "medium" | "high" | "urgent";
-export type RequestCategory =
-  | "HVAC"
-  | "Electrical"
-  | "Plumbing"
-  | "Carpentry"
-  | "General"
-  | "Other";
+  | "SUBMITTED"
+  | "ASSIGNED"
+  | "IN_PROGRESS"
+  | "COMPLETED"
+  | "REJECTED";
+export type RequestPriority = "LOW" | "MEDIUM" | "HIGH" | "URGENT";
+
+export interface Category {
+  id: number;
+  name: string;
+  description: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface UserBasic {
+  id: string;
+  name: string;
+  email: string;
+  role: "CUSTOMER" | "TECHNICIAN" | "SUPER_ADMIN";
+}
 
 export interface MaintenanceRequest {
   id: string;
   title: string;
   description: string;
-  location: string;
   priority: RequestPriority;
   status: RequestStatus;
-  category: RequestCategory;
-  assignedTo: string | null;
-  assignedToName?: string;
-  date: string;
+  categoryId: number;
+  location: string;
+  building: string;
+  specificLocation: string;
+  requestedById: string;
+  assignedToId: string | null;
+  assignedById: string | null;
+  estimatedCost: string | null;
+  actualCost: string | null;
+  scheduledDate: string | null;
+  completedDate: string | null;
   createdAt: string;
   updatedAt: string;
-  createdBy?: string;
+  category: Category;
+  requestedBy: UserBasic;
+  assignedTo: UserBasic | null;
+  assignedBy: UserBasic | null;
+  _count: {
+    comments: number;
+  };
 }
 
 export interface Technician {
@@ -42,25 +63,40 @@ export interface CreateRequestFormData {
   title: string;
   description: string;
   location: string;
+  building: string;
+  specificLocation: string;
   priority: RequestPriority;
-  category: RequestCategory;
+  categoryId: number;
 }
 
 export interface CreateRequestRequest {
   title: string;
   description: string;
   location: string;
+  building: string;
+  specificLocation: string;
   priority: RequestPriority;
-  category: RequestCategory;
+  categoryId: number;
 }
 
 export interface UpdateRequestRequest {
   title?: string;
   description?: string;
   location?: string;
+  building?: string;
+  specificLocation?: string;
   priority?: RequestPriority;
-  category?: RequestCategory;
+  categoryId?: number;
   status?: RequestStatus;
+  estimatedCost?: string;
+  actualCost?: string;
+  scheduledDate?: string;
+  completedDate?: string;
+}
+
+export interface AssignTechnicianRequest {
+  assignedToId: string;
+  reason?: string;
 }
 
 export interface ApiResponse<T> {
@@ -74,7 +110,7 @@ export interface Pagination {
   page: number;
   limit: number;
   total: number;
-  pages: number;
+  totalPages: number;
 }
 
 export interface RequestsResponse {
@@ -82,7 +118,7 @@ export interface RequestsResponse {
   pagination: Pagination;
 }
 
-export interface GetRequestsResponse extends ApiResponse<RequestsResponse> {}
+export type GetRequestsResponse = ApiResponse<RequestsResponse>;
 
 export interface FormErrors {
   [key: string]: string;

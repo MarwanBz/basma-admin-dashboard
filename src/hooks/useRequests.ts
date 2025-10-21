@@ -1,97 +1,58 @@
 "use client";
 
 import {
+  AssignTechnicianRequest,
   CreateRequestRequest,
   MaintenanceRequest,
   UpdateRequestRequest,
 } from "@/types/request";
 import {
-  mockRequests,
-  mockTechnicians,
-} from "@/app/dashboard/requests/_components/mock-data";
+  assignTechnician,
+  createRequest,
+  deleteRequest,
+  getRequestById,
+  getRequests,
+  updateRequest,
+} from "@/apis/requests";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-// Mock API functions
+// API functions - now using real API calls
 const getRequestsAsync = async () => {
-  await new Promise((resolve) => setTimeout(resolve, 500)); // Simulate network delay
-  return mockRequests;
+  const response = await getRequests();
+  return response.data.requests;
 };
 
 const getRequestByIdAsync = async (id: string) => {
-  await new Promise((resolve) => setTimeout(resolve, 300));
-  const request = mockRequests.find((r) => r.id === id);
-  if (!request) throw new Error("Request not found");
-  return request;
+  const response = await getRequestById(id);
+  return response.data;
 };
 
 const createRequestAsync = async (data: CreateRequestRequest) => {
-  await new Promise((resolve) => setTimeout(resolve, 400));
-  const newRequest: MaintenanceRequest = {
-    id: `REQ-${String(mockRequests.length + 1).padStart(3, "0")}`,
-    ...data,
-    status: "pending",
-    assignedTo: null,
-    date: new Date().toISOString().split("T")[0],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  };
-  mockRequests.push(newRequest);
-  return newRequest;
+  const response = await createRequest(data);
+  return response.data;
 };
 
 const updateRequestAsync = async (id: string, data: UpdateRequestRequest) => {
-  await new Promise((resolve) => setTimeout(resolve, 400));
-  const index = mockRequests.findIndex((r) => r.id === id);
-  if (index === -1) throw new Error("Request not found");
-
-  const updated = {
-    ...mockRequests[index],
-    ...data,
-    updatedAt: new Date().toISOString(),
-  };
-  mockRequests[index] = updated;
-  return updated;
+  const response = await updateRequest(id, data);
+  return response.data;
 };
 
 const deleteRequestAsync = async (id: string) => {
-  await new Promise((resolve) => setTimeout(resolve, 300));
-  const index = mockRequests.findIndex((r) => r.id === id);
-  if (index === -1) throw new Error("Request not found");
-
-  const deleted = mockRequests[index];
-  mockRequests.splice(index, 1);
-  return deleted;
+  await deleteRequest(id);
+  return null;
 };
 
 const assignTechnicianAsync = async (
   requestId: string,
-  technicianId: string
+  data: AssignTechnicianRequest
 ) => {
-  await new Promise((resolve) => setTimeout(resolve, 400));
-  const request = mockRequests.find((r) => r.id === requestId);
-  const technician = mockTechnicians.find((t) => t.id === technicianId);
-
-  if (!request) throw new Error("Request not found");
-  if (!technician) throw new Error("Technician not found");
-
-  request.assignedTo = technicianId;
-  request.assignedToName = technician.name;
-  request.status = "assigned";
-  request.updatedAt = new Date().toISOString();
-
-  return request;
+  const response = await assignTechnician(requestId, data);
+  return response.data;
 };
 
 const updateRequestStatusAsync = async (requestId: string, status: string) => {
-  await new Promise((resolve) => setTimeout(resolve, 300));
-  const request = mockRequests.find((r) => r.id === requestId);
-
-  if (!request) throw new Error("Request not found");
-
-  request.status = status as any;
-  request.updatedAt = new Date().toISOString();
-
-  return request;
+  const response = await updateRequest(requestId, { status: status as any });
+  return response.data;
 };
 
 /**
@@ -168,11 +129,13 @@ export function useAssignTechnician() {
   return useMutation({
     mutationFn: ({
       requestId,
-      technicianId,
+      assignedToId,
+      reason,
     }: {
       requestId: string;
-      technicianId: string;
-    }) => assignTechnicianAsync(requestId, technicianId),
+      assignedToId: string;
+      reason?: string;
+    }) => assignTechnicianAsync(requestId, { assignedToId, reason }),
     onSuccess: (_, { requestId }) => {
       queryClient.invalidateQueries({ queryKey: ["requests"] });
       queryClient.invalidateQueries({ queryKey: ["request", requestId] });
