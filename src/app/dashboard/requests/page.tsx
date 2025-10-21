@@ -20,6 +20,7 @@ import { Button } from "@/components/ui/button";
 import { Loading } from "./_components/loading";
 import { MaintenanceRequest } from "@/types/request";
 import { Plus } from "lucide-react";
+import { REQUEST_PRIORITY } from "@/constants/app-constants";
 import { UserRole } from "@/types/user";
 import { useRoleGuard } from "@/hooks/useRoleGuard";
 import { useState } from "react";
@@ -86,7 +87,7 @@ export default function MaintenanceRequests() {
         location: newRequest.location,
         building: newRequest.building,
         specificLocation: newRequest.specificLocation,
-        priority: newRequest.priority as "LOW" | "MEDIUM" | "HIGH" | "URGENT",
+        priority: newRequest.priority as keyof typeof REQUEST_PRIORITY,
         categoryId: newRequest.categoryId,
       });
       setShowAddModal(false);
@@ -116,7 +117,7 @@ export default function MaintenanceRequests() {
           location: data.location,
           building: data.building,
           specificLocation: data.specificLocation,
-          priority: data.priority as "LOW" | "MEDIUM" | "HIGH" | "URGENT",
+          priority: data.priority as keyof typeof REQUEST_PRIORITY,
           categoryId: data.categoryId,
         },
       });

@@ -17,6 +17,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { RequestPriority, RequestStatus } from "@/constants/app-constants";
+import {
+  getPriorityColor,
+  getPriorityText,
+  getStatusColor,
+  getStatusLabel,
+} from "@/constants/translations";
 
 import { Button } from "@/components/ui/button";
 import { Unauthorized } from "@/components/Unauthorized";
@@ -101,32 +108,6 @@ function SuperAdminDashboard() {
       color: "text-green-600",
       clickable: true,
     },
-    {
-      title: "معدل النظام",
-      value: "99.8%",
-      description: "وقت التشغيل",
-      icon: <Shield className="h-6 w-6" />,
-      color: "text-orange-600",
-    },
-    {
-      title: "حجم البيانات",
-      value: "2.4 TB",
-      description: "مستخدمة",
-      icon: <Database className="h-6 w-6" />,
-      color: "text-purple-600",
-    },
-  ];
-
-  const recentActivity = [
-    {
-      action: "مستخدم جديد",
-      user: "أحمد محمد",
-      role: "فني",
-      time: "منذ 5 دقائق",
-    },
-    { action: "تحديث النظام", version: "v2.1.0", time: "منذ ساعة" },
-    { action: "إنشاء منشأة", name: "برج النخيل", time: "منذ 3 ساعات" },
-    { action: "نسخ احتياطي", status: "مكتمل", time: "منذ 6 ساعات" },
   ];
 
   return (
@@ -180,10 +161,12 @@ function SuperAdminDashboard() {
                     {stats.requestsByStatus.map((item) => (
                       <div
                         key={item.status}
-                        className="p-3 bg-blue-50 rounded-lg border border-blue-200"
+                        className={`p-3 rounded-lg border ${getStatusColor(item.status as RequestStatus)}`}
                       >
-                        <p className="text-xs text-gray-600">{item.status}</p>
-                        <p className="text-xl font-bold text-blue-900">
+                        <p className="text-xs text-gray-600">
+                          {getStatusLabel(item.status as RequestStatus)}
+                        </p>
+                        <p className="text-xl font-bold text-gray-900">
                           {item._count}
                         </p>
                       </div>
@@ -201,12 +184,12 @@ function SuperAdminDashboard() {
                       {stats.requestsByPriority.map((item) => (
                         <div
                           key={item.priority}
-                          className="p-3 bg-green-50 rounded-lg border border-green-200"
+                          className={`p-3 rounded-lg border ${getPriorityColor(item.priority as RequestPriority)}`}
                         >
                           <p className="text-xs text-gray-600">
-                            {item.priority}
+                            {getPriorityText(item.priority as RequestPriority)}
                           </p>
-                          <p className="text-xl font-bold text-green-900">
+                          <p className="text-xl font-bold text-gray-900">
                             {item._count}
                           </p>
                         </div>
@@ -228,8 +211,10 @@ function SuperAdminDashboard() {
                         <span className="text-sm truncate">
                           {request.title}
                         </span>
-                        <span className="text-xs text-gray-500">
-                          {request.status}
+                        <span
+                          className={`text-xs px-2 py-1 rounded-full ${getStatusColor(request.status as RequestStatus)}`}
+                        >
+                          {getStatusLabel(request.status as RequestStatus)}
                         </span>
                       </div>
                     ))}
@@ -249,7 +234,7 @@ function SuperAdminDashboard() {
       )}
 
       {/* Recent Activity */}
-      <Card>
+      {/* <Card>
         <CardHeader>
           <CardTitle>النشاط الحديث في النظام</CardTitle>
           <CardDescription>آخر التحديثات والإجراءات في النظام</CardDescription>
@@ -283,7 +268,7 @@ function SuperAdminDashboard() {
             <ArrowLeft className="mr-2 h-4 w-4" />
           </Button>
         </CardContent>
-      </Card>
+      </Card> */}
     </>
   );
 }
@@ -458,26 +443,26 @@ function MaintenanceAdminDashboard() {
     {
       id: "REQ-001",
       title: "إصلاح تكييف الوحدة 205",
-      status: "قيد التنفيذ",
-      priority: "عالي",
+      status: "IN_PROGRESS",
+      priority: "HIGH",
     },
     {
       id: "REQ-002",
       title: "تسريب مياه المطبخ",
-      status: "قيد الانتظار",
-      priority: "متوسط",
+      status: "SUBMITTED",
+      priority: "MEDIUM",
     },
     {
       id: "REQ-003",
       title: "صيانة مصعد المبنى أ",
-      status: "مكتمل",
-      priority: "منخفض",
+      status: "COMPLETED",
+      priority: "LOW",
     },
     {
       id: "REQ-004",
       title: "استبدال مفاتيح الباب",
-      status: "قيد الانتظار",
-      priority: "عالي",
+      status: "SUBMITTED",
+      priority: "HIGH",
     },
   ];
 
@@ -522,18 +507,14 @@ function MaintenanceAdminDashboard() {
                 </div>
                 <div className="text-left">
                   <span
-                    className={`inline-block px-2 py-1 text-xs rounded-full ${
-                      request.priority === "عالي"
-                        ? "bg-red-100 text-red-800"
-                        : request.priority === "متوسط"
-                          ? "bg-yellow-100 text-yellow-800"
-                          : "bg-green-100 text-green-800"
-                    }`}
+                    className={`inline-block px-2 py-1 text-xs rounded-full ${getPriorityColor(request.priority as RequestPriority)}`}
                   >
-                    {request.priority}
+                    {getPriorityText(request.priority as RequestPriority)}
                   </span>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    {request.status}
+                  <p
+                    className={`text-sm mt-1 px-2 py-1 rounded-full ${getStatusColor(request.status as RequestStatus)}`}
+                  >
+                    {getStatusLabel(request.status as RequestStatus)}
                   </p>
                 </div>
               </div>

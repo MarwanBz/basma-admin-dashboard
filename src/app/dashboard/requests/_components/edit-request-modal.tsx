@@ -22,7 +22,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { MaintenanceRequest } from "@/types/request";
+import { REQUEST_PRIORITY } from "@/constants/app-constants";
 import { Textarea } from "@/components/ui/textarea";
+import { getPriorityText } from "@/constants/translations";
 
 interface EditRequestModalProps {
   open: boolean;
@@ -51,7 +53,7 @@ export function EditRequestModal({
     location: "",
     building: "",
     specificLocation: "",
-    priority: "MEDIUM",
+    priority: REQUEST_PRIORITY.MEDIUM as string,
     categoryId: 1,
   });
 
@@ -241,10 +243,18 @@ export function EditRequestModal({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="LOW">منخفض</SelectItem>
-                <SelectItem value="MEDIUM">متوسط</SelectItem>
-                <SelectItem value="HIGH">عالي</SelectItem>
-                <SelectItem value="URGENT">عاجل</SelectItem>
+                <SelectItem value={REQUEST_PRIORITY.LOW}>
+                  {getPriorityText(REQUEST_PRIORITY.LOW)}
+                </SelectItem>
+                <SelectItem value={REQUEST_PRIORITY.MEDIUM}>
+                  {getPriorityText(REQUEST_PRIORITY.MEDIUM)}
+                </SelectItem>
+                <SelectItem value={REQUEST_PRIORITY.HIGH}>
+                  {getPriorityText(REQUEST_PRIORITY.HIGH)}
+                </SelectItem>
+                <SelectItem value={REQUEST_PRIORITY.URGENT}>
+                  {getPriorityText(REQUEST_PRIORITY.URGENT)}
+                </SelectItem>
               </SelectContent>
             </Select>
           </div>

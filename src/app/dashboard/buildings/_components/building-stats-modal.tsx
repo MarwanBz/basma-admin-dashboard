@@ -7,6 +7,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { RequestPriority, RequestStatus } from "@/constants/app-constants";
+import {
+  getPriorityColor,
+  getPriorityText,
+  getStatusColor,
+  getStatusLabel,
+} from "@/constants/translations";
 
 import { BuildingStatistics } from "@/types/building-config";
 import { Card } from "@/components/ui/card";
@@ -50,8 +57,13 @@ export function BuildingStatsModal({
             <h3 className="font-semibold text-sm mb-3">الطلبات حسب الحالة</h3>
             <div className="grid grid-cols-2 gap-2">
               {stats.requestsByStatus.map((item) => (
-                <Card key={item.status} className="p-3 bg-gray-50">
-                  <p className="text-xs text-gray-600">{item.status}</p>
+                <Card
+                  key={item.status}
+                  className={`p-3 ${getStatusColor(item.status as RequestStatus)}`}
+                >
+                  <p className="text-xs text-gray-600">
+                    {getStatusLabel(item.status as RequestStatus)}
+                  </p>
                   <p className="text-xl font-bold text-gray-900">
                     {item._count}
                   </p>
@@ -65,8 +77,13 @@ export function BuildingStatsModal({
             <h3 className="font-semibold text-sm mb-3">الطلبات حسب الأولوية</h3>
             <div className="grid grid-cols-2 gap-2">
               {stats.requestsByPriority.map((item) => (
-                <Card key={item.priority} className="p-3 bg-gray-50">
-                  <p className="text-xs text-gray-600">{item.priority}</p>
+                <Card
+                  key={item.priority}
+                  className={`p-3 ${getPriorityColor(item.priority as RequestPriority)}`}
+                >
+                  <p className="text-xs text-gray-600">
+                    {getPriorityText(item.priority as RequestPriority)}
+                  </p>
                   <p className="text-xl font-bold text-gray-900">
                     {item._count}
                   </p>
@@ -95,11 +112,15 @@ export function BuildingStatsModal({
                         )}
                       </span>
                       <div className="flex gap-1">
-                        <span className="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded">
-                          {request.status}
+                        <span
+                          className={`text-xs px-2 py-1 rounded ${getStatusColor(request.status as RequestStatus)}`}
+                        >
+                          {getStatusLabel(request.status as RequestStatus)}
                         </span>
-                        <span className="text-xs px-2 py-1 bg-yellow-100 text-yellow-800 rounded">
-                          {request.priority}
+                        <span
+                          className={`text-xs px-2 py-1 rounded ${getPriorityColor(request.priority as RequestPriority)}`}
+                        >
+                          {getPriorityText(request.priority as RequestPriority)}
                         </span>
                       </div>
                     </div>
