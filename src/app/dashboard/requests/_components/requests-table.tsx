@@ -1,7 +1,12 @@
 "use client";
 
 import {
-  CheckCircle2,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
   Edit,
   Eye,
   MapPin,
@@ -11,12 +16,6 @@ import {
   UserPlus,
 } from "lucide-react";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
   Table,
   TableBody,
   TableCell,
@@ -24,13 +23,17 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { getPriorityText, priorityColors } from "@/lib/status-utils";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MaintenanceRequest } from "@/types/request";
+import { StatusSelect } from "@/components/ui/status-select";
+import { UserRole } from "@/types/user";
 
 interface RequestsTableProps {
   requests: MaintenanceRequest[];
+  userRole: UserRole;
   onAssign: (requestId: string) => void;
   onView: (requestId: string) => void;
   onEdit: (requestId: string) => void;
@@ -38,44 +41,9 @@ interface RequestsTableProps {
   onStatusChange: (requestId: string, status: string) => void;
 }
 
-const priorityColors: Record<string, string> = {
-  URGENT: "bg-red-100 text-red-800",
-  HIGH: "bg-orange-100 text-orange-800",
-  MEDIUM: "bg-yellow-100 text-yellow-800",
-  LOW: "bg-green-100 text-green-800",
-};
-
-const statusColors: Record<string, string> = {
-  SUBMITTED: "bg-slate-100 text-slate-800",
-  ASSIGNED: "bg-blue-100 text-blue-800",
-  IN_PROGRESS: "bg-purple-100 text-purple-800",
-  COMPLETED: "bg-green-100 text-green-800",
-  REJECTED: "bg-red-100 text-red-800",
-};
-
-const getPriorityText = (priority: string) => {
-  const priorityMap: Record<string, string> = {
-    URGENT: "عاجل",
-    HIGH: "عالي",
-    MEDIUM: "متوسط",
-    LOW: "منخفض",
-  };
-  return priorityMap[priority] || priority;
-};
-
-const getStatusText = (status: string) => {
-  const statusMap: Record<string, string> = {
-    SUBMITTED: "في الانتظار",
-    ASSIGNED: "مُعيّن",
-    IN_PROGRESS: "قيد التنفيذ",
-    COMPLETED: "مكتمل",
-    REJECTED: "مرفوض",
-  };
-  return statusMap[status] || status;
-};
-
 export function RequestsTable({
   requests,
+  userRole,
   onAssign,
   onView,
   onEdit,
@@ -111,9 +79,12 @@ export function RequestsTable({
                   </Badge>
                 </TableCell>
                 <TableCell>
-                  <Badge className={statusColors[request.status]}>
-                    {getStatusText(request.status)}
-                  </Badge>
+                  <StatusSelect
+                    currentStatus={request.status}
+                    requestId={request.id}
+                    userRole={userRole}
+                    onStatusChange={onStatusChange}
+                  />
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center">
@@ -152,26 +123,6 @@ export function RequestsTable({
                         <DropdownMenuItem onClick={() => onAssign(request.id)}>
                           <UserPlus className="h-4 w-4 mr-2" />
                           تعيين فني
-                        </DropdownMenuItem>
-                      )}
-                      {request.status === "ASSIGNED" && (
-                        <DropdownMenuItem
-                          onClick={() =>
-                            onStatusChange(request.id, "IN_PROGRESS")
-                          }
-                        >
-                          <CheckCircle2 className="h-4 w-4 mr-2" />
-                          بدء العمل
-                        </DropdownMenuItem>
-                      )}
-                      {request.status === "IN_PROGRESS" && (
-                        <DropdownMenuItem
-                          onClick={() =>
-                            onStatusChange(request.id, "COMPLETED")
-                          }
-                        >
-                          <CheckCircle2 className="h-4 w-4 mr-2" />
-                          إكمال العمل
                         </DropdownMenuItem>
                       )}
                       <DropdownMenuItem

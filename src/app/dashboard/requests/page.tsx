@@ -20,10 +20,15 @@ import { Button } from "@/components/ui/button";
 import { Loading } from "./_components/loading";
 import { MaintenanceRequest } from "@/types/request";
 import { Plus } from "lucide-react";
+import { UserRole } from "@/types/user";
+import { useRoleGuard } from "@/hooks/useRoleGuard";
 import { useState } from "react";
 import { useTechnicians } from "@/hooks/useTechnicians";
 
 export default function MaintenanceRequests() {
+  // Get user role
+  const { user } = useRoleGuard([]);
+
   // State management
   const [searchQuery] = useState("");
   const [activeFilter] = useState("all");
@@ -224,6 +229,7 @@ export default function MaintenanceRequests() {
           {/* Requests Table */}
           <RequestsTable
             requests={filteredRequests}
+            userRole={(user?.roles?.[0] as UserRole) || "BASMA_ADMIN"}
             onAssign={handleAssignRequest}
             onView={handleViewRequest}
             onEdit={handleEditRequest}
@@ -254,6 +260,7 @@ export default function MaintenanceRequests() {
               open={showDetailsModal}
               onOpenChange={setShowDetailsModal}
               request={selectedRequest}
+              userRole={(user?.roles?.[0] as UserRole) || "BASMA_ADMIN"}
               onEdit={() => {
                 setShowDetailsModal(false);
                 setShowEditModal(true);
@@ -266,6 +273,7 @@ export default function MaintenanceRequests() {
                 setShowDetailsModal(false);
                 handleAssignRequest(selectedRequest.id);
               }}
+              onStatusChange={handleStatusChange}
             />
           )}
 
