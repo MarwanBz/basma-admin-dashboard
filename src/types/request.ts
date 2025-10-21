@@ -1,12 +1,7 @@
-export type RequestStatus =
-  | "DRAFT"
-  | "SUBMITTED"
-  | "ASSIGNED"
-  | "IN_PROGRESS"
-  | "COMPLETED"
-  | "CLOSED"
-  | "REJECTED";
-export type RequestPriority = "LOW" | "MEDIUM" | "HIGH" | "URGENT";
+import { RequestPriority, RequestStatus } from "@/constants/app-constants";
+
+// Re-export types from constants for backward compatibility
+export type { RequestStatus, RequestPriority };
 
 export interface Category {
   id: number;
