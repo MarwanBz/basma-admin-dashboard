@@ -5,6 +5,7 @@ import {
   CreateRequestRequest,
   MaintenanceRequest,
   UpdateRequestRequest,
+  UpdateStatusRequest,
 } from "@/types/request";
 import {
   assignTechnician,
@@ -13,6 +14,7 @@ import {
   getRequestById,
   getRequests,
   updateRequest,
+  updateRequestStatus,
 } from "@/apis/requests";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
@@ -50,8 +52,11 @@ const assignTechnicianAsync = async (
   return response.data;
 };
 
-const updateRequestStatusAsync = async (requestId: string, status: string) => {
-  const response = await updateRequest(requestId, { status: status as any });
+const updateRequestStatusAsync = async (
+  requestId: string,
+  data: UpdateStatusRequest
+) => {
+  const response = await updateRequestStatus(requestId, data);
   return response.data;
 };
 
@@ -152,11 +157,11 @@ export function useUpdateRequestStatus() {
   return useMutation({
     mutationFn: ({
       requestId,
-      status,
+      data,
     }: {
       requestId: string;
-      status: string;
-    }) => updateRequestStatusAsync(requestId, status),
+      data: UpdateStatusRequest;
+    }) => updateRequestStatusAsync(requestId, data),
     onSuccess: (_, { requestId }) => {
       queryClient.invalidateQueries({ queryKey: ["requests"] });
       queryClient.invalidateQueries({ queryKey: ["request", requestId] });
