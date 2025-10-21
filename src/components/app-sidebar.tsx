@@ -91,9 +91,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     {
       label: "المنشآت",
       icon: <Building className="h-4 w-4" />,
-      href: "/dashboard/facilities",
-      roles: ["SUPER_ADMIN", "BASMA_ADMIN"],
-      disabled: true,
+      href: "/dashboard/buildings",
+      roles: ["SUPER_ADMIN"],
+      disabled: false,
     },
     {
       label: "طلبات الصيانة",

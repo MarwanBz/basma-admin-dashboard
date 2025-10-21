@@ -15,13 +15,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  useBuildingConfigs,
+  useNextIdentifier,
+} from "@/hooks/useBuildingConfigs";
+import { useEffect, useState } from "react";
 
 import { AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { useState } from "react";
+import { useRoleGuard } from "@/hooks/useRoleGuard";
 
 interface AddRequestModalProps {
   showModal: boolean;
@@ -34,6 +39,7 @@ interface AddRequestModalProps {
     specificLocation: string;
     priority: string;
     categoryId: number;
+    customIdentifier?: string;
   }) => void;
 }
 
@@ -42,6 +48,8 @@ export function AddRequestModal({
   setShowModal,
   onSubmit,
 }: AddRequestModalProps) {
+  const { user } = useRoleGuard([]);
+  const { data: buildingsResponse } = useBuildingConfigs();
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -50,9 +58,22 @@ export function AddRequestModal({
     specificLocation: "",
     priority: "MEDIUM",
     categoryId: 1,
+    customIdentifier: "",
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [nextId, setNextId] = useState<string>("");
+
+  const { data: nextIdResponse } = useNextIdentifier(formData.building);
+
+  useEffect(() => {
+    if (nextIdResponse?.data?.nextIdentifier) {
+      setNextId(nextIdResponse.data.nextIdentifier);
+    }
+  }, [nextIdResponse]);
+
+  const buildings = buildingsResponse?.data || [];
+  const isSuperAdmin = user?.roles?.includes("SUPER_ADMIN");
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -70,6 +91,9 @@ export function AddRequestModal({
 
   const handleSelectChange = (name: string, value: string) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
+    if (name === "building") {
+      setNextId("");
+    }
   };
 
   const handleNumberChange = (name: string, value: string) => {
@@ -93,7 +117,20 @@ export function AddRequestModal({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (validate()) {
-      onSubmit(formData);
+      const submitData = {
+        title: formData.title,
+        description: formData.description,
+        location: formData.location,
+        building: formData.building,
+        specificLocation: formData.specificLocation,
+        priority: formData.priority,
+        categoryId: formData.categoryId,
+        ...(isSuperAdmin &&
+          formData.customIdentifier && {
+            customIdentifier: formData.customIdentifier,
+          }),
+      };
+      onSubmit(submitData);
       setFormData({
         title: "",
         description: "",
@@ -102,7 +139,9 @@ export function AddRequestModal({
         specificLocation: "",
         priority: "MEDIUM",
         categoryId: 1,
+        customIdentifier: "",
       });
+      setNextId("");
       setShowModal(false);
     }
   };
@@ -173,6 +212,39 @@ export function AddRequestModal({
           </div>
 
           <div className="space-y-2">
+            <Label htmlFor="building">المبنى *</Label>
+            <Select
+              value={formData.building}
+              onValueChange={(value) => handleSelectChange("building", value)}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="اختر المبنى" />
+              </SelectTrigger>
+              <SelectContent>
+                {buildings.map((building) => (
+                  <SelectItem
+                    key={building.buildingName}
+                    value={building.buildingName}
+                  >
+                    {building.displayName} ({building.buildingName})
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {errors.building && (
+              <p className="text-sm text-destructive flex items-center gap-1">
+                <AlertCircle className="h-4 w-4" />
+                {errors.building}
+              </p>
+            )}
+            {nextId && (
+              <p className="text-xs text-blue-600 font-medium">
+                المعرف التالي: <span className="font-bold">{nextId}</span>
+              </p>
+            )}
+          </div>
+
+          <div className="space-y-2">
             <Label htmlFor="location">الموقع العام *</Label>
             <Input
               id="location"
@@ -185,23 +257,6 @@ export function AddRequestModal({
               <p className="text-sm text-destructive flex items-center gap-1">
                 <AlertCircle className="h-4 w-4" />
                 {errors.location}
-              </p>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="building">المبنى *</Label>
-            <Input
-              id="building"
-              name="building"
-              value={formData.building}
-              onChange={handleChange}
-              placeholder="مثال: المبنى أ"
-            />
-            {errors.building && (
-              <p className="text-sm text-destructive flex items-center gap-1">
-                <AlertCircle className="h-4 w-4" />
-                {errors.building}
               </p>
             )}
           </div>
@@ -222,6 +277,22 @@ export function AddRequestModal({
               </p>
             )}
           </div>
+
+          {isSuperAdmin && (
+            <div className="space-y-2">
+              <Label htmlFor="customIdentifier">معرف مخصص (اختياري)</Label>
+              <Input
+                id="customIdentifier"
+                name="customIdentifier"
+                value={formData.customIdentifier}
+                onChange={handleChange}
+                placeholder="ترك فارغ لاستخدام المعرف التلقائي"
+              />
+              <p className="text-xs text-gray-500">
+                اترك الحقل فارغاً للسماح للنظام بإنشاء معرف تلقائي
+              </p>
+            </div>
+          )}
 
           <div className="space-y-2">
             <Label htmlFor="priority">الأولوية *</Label>
