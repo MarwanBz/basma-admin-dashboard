@@ -30,8 +30,10 @@ interface AddRequestModalProps {
     title: string;
     description: string;
     location: string;
+    building: string;
+    specificLocation: string;
     priority: string;
-    category: string;
+    categoryId: number;
   }) => void;
 }
 
@@ -44,8 +46,10 @@ export function AddRequestModal({
     title: "",
     description: "",
     location: "",
-    priority: "medium",
-    category: "General",
+    building: "",
+    specificLocation: "",
+    priority: "MEDIUM",
+    categoryId: 1,
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -68,12 +72,19 @@ export function AddRequestModal({
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleNumberChange = (name: string, value: string) => {
+    setFormData((prev) => ({ ...prev, [name]: parseInt(value) || 0 }));
+  };
+
   const validate = () => {
     const newErrors: Record<string, string> = {};
 
     if (!formData.title.trim()) newErrors.title = "العنوان مطلوب";
     if (!formData.description.trim()) newErrors.description = "الوصف مطلوب";
     if (!formData.location.trim()) newErrors.location = "الموقع مطلوب";
+    if (!formData.building.trim()) newErrors.building = "المبنى مطلوب";
+    if (!formData.specificLocation.trim())
+      newErrors.specificLocation = "الموقع المحدد مطلوب";
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -87,8 +98,10 @@ export function AddRequestModal({
         title: "",
         description: "",
         location: "",
-        priority: "medium",
-        category: "General",
+        building: "",
+        specificLocation: "",
+        priority: "MEDIUM",
+        categoryId: 1,
       });
       setShowModal(false);
     }
@@ -123,21 +136,20 @@ export function AddRequestModal({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="category">الفئة *</Label>
+            <Label htmlFor="categoryId">الفئة *</Label>
             <Select
-              value={formData.category}
-              onValueChange={(value) => handleSelectChange("category", value)}
+              value={formData.categoryId.toString()}
+              onValueChange={(value) => handleNumberChange("categoryId", value)}
             >
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="HVAC">تكييف</SelectItem>
-                <SelectItem value="Electrical">كهرباء</SelectItem>
-                <SelectItem value="Plumbing">سباكة</SelectItem>
-                <SelectItem value="Carpentry">نجارة</SelectItem>
-                <SelectItem value="General">عام</SelectItem>
-                <SelectItem value="Other">أخرى</SelectItem>
+                <SelectItem value="1">سباكة</SelectItem>
+                <SelectItem value="2">كهرباء</SelectItem>
+                <SelectItem value="3">تكييف وتدفئة</SelectItem>
+                <SelectItem value="4">أعمال إنشائية</SelectItem>
+                <SelectItem value="5">نجارة</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -161,18 +173,52 @@ export function AddRequestModal({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="location">الموقع *</Label>
+            <Label htmlFor="location">الموقع العام *</Label>
             <Input
               id="location"
               name="location"
               value={formData.location}
               onChange={handleChange}
-              placeholder="مثال: قاعة الاجتماعات - المبنى أ، الطابق الثالث"
+              placeholder="مثال: الطابق الثالث"
             />
             {errors.location && (
               <p className="text-sm text-destructive flex items-center gap-1">
                 <AlertCircle className="h-4 w-4" />
                 {errors.location}
+              </p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="building">المبنى *</Label>
+            <Input
+              id="building"
+              name="building"
+              value={formData.building}
+              onChange={handleChange}
+              placeholder="مثال: المبنى أ"
+            />
+            {errors.building && (
+              <p className="text-sm text-destructive flex items-center gap-1">
+                <AlertCircle className="h-4 w-4" />
+                {errors.building}
+              </p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="specificLocation">الموقع المحدد *</Label>
+            <Input
+              id="specificLocation"
+              name="specificLocation"
+              value={formData.specificLocation}
+              onChange={handleChange}
+              placeholder="مثال: قاعة الاجتماعات"
+            />
+            {errors.specificLocation && (
+              <p className="text-sm text-destructive flex items-center gap-1">
+                <AlertCircle className="h-4 w-4" />
+                {errors.specificLocation}
               </p>
             )}
           </div>
@@ -187,10 +233,10 @@ export function AddRequestModal({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="low">منخفض</SelectItem>
-                <SelectItem value="medium">متوسط</SelectItem>
-                <SelectItem value="high">عالي</SelectItem>
-                <SelectItem value="urgent">عاجل</SelectItem>
+                <SelectItem value="LOW">منخفض</SelectItem>
+                <SelectItem value="MEDIUM">متوسط</SelectItem>
+                <SelectItem value="HIGH">عالي</SelectItem>
+                <SelectItem value="URGENT">عاجل</SelectItem>
               </SelectContent>
             </Select>
           </div>

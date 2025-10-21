@@ -32,8 +32,10 @@ interface EditRequestModalProps {
     title: string;
     description: string;
     location: string;
+    building: string;
+    specificLocation: string;
     priority: string;
-    category: string;
+    categoryId: number;
   }) => void;
 }
 
@@ -47,8 +49,10 @@ export function EditRequestModal({
     title: "",
     description: "",
     location: "",
-    priority: "medium",
-    category: "General",
+    building: "",
+    specificLocation: "",
+    priority: "MEDIUM",
+    categoryId: 1,
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -59,8 +63,10 @@ export function EditRequestModal({
         title: request.title,
         description: request.description,
         location: request.location,
+        building: request.building,
+        specificLocation: request.specificLocation,
         priority: request.priority,
-        category: request.category,
+        categoryId: request.categoryId,
       });
     }
   }, [request]);
@@ -83,13 +89,19 @@ export function EditRequestModal({
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleNumberChange = (name: string, value: string) => {
+    setFormData((prev) => ({ ...prev, [name]: parseInt(value) || 0 }));
+  };
+
   const validate = () => {
     const newErrors: Record<string, string> = {};
 
-    if (!formData.title.trim()) newErrors.title = "Title is required";
-    if (!formData.description.trim())
-      newErrors.description = "Description is required";
-    if (!formData.location.trim()) newErrors.location = "Location is required";
+    if (!formData.title.trim()) newErrors.title = "العنوان مطلوب";
+    if (!formData.description.trim()) newErrors.description = "الوصف مطلوب";
+    if (!formData.location.trim()) newErrors.location = "الموقع مطلوب";
+    if (!formData.building.trim()) newErrors.building = "المبنى مطلوب";
+    if (!formData.specificLocation.trim())
+      newErrors.specificLocation = "الموقع المحدد مطلوب";
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -107,21 +119,21 @@ export function EditRequestModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-lg">
         <DialogHeader>
-          <DialogTitle>Edit Maintenance Request</DialogTitle>
+          <DialogTitle>تعديل طلب الصيانة</DialogTitle>
           <DialogDescription>
-            Update the details of this maintenance request
+            قم بتحديث تفاصيل طلب الصيانة هذا
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="title">Title *</Label>
+            <Label htmlFor="title">العنوان *</Label>
             <Input
               id="title"
               name="title"
               value={formData.title}
               onChange={handleChange}
-              placeholder="e.g., Air Conditioner Repair"
+              placeholder="مثال: إصلاح مكيف الهواء"
             />
             {errors.title && (
               <p className="text-sm text-destructive flex items-center gap-1">
@@ -132,33 +144,32 @@ export function EditRequestModal({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="category">Category *</Label>
+            <Label htmlFor="categoryId">الفئة *</Label>
             <Select
-              value={formData.category}
-              onValueChange={(value) => handleSelectChange("category", value)}
+              value={formData.categoryId.toString()}
+              onValueChange={(value) => handleNumberChange("categoryId", value)}
             >
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="HVAC">HVAC</SelectItem>
-                <SelectItem value="Electrical">Electrical</SelectItem>
-                <SelectItem value="Plumbing">Plumbing</SelectItem>
-                <SelectItem value="Carpentry">Carpentry</SelectItem>
-                <SelectItem value="General">General</SelectItem>
-                <SelectItem value="Other">Other</SelectItem>
+                <SelectItem value="1">سباكة</SelectItem>
+                <SelectItem value="2">كهرباء</SelectItem>
+                <SelectItem value="3">تكييف وتدفئة</SelectItem>
+                <SelectItem value="4">أعمال إنشائية</SelectItem>
+                <SelectItem value="5">نجارة</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description">Description *</Label>
+            <Label htmlFor="description">الوصف *</Label>
             <Textarea
               id="description"
               name="description"
               value={formData.description}
               onChange={handleChange}
-              placeholder="Describe the issue in detail"
+              placeholder="اشرح المشكلة بالتفصيل"
               rows={4}
             />
             {errors.description && (
@@ -170,13 +181,13 @@ export function EditRequestModal({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="location">Location *</Label>
+            <Label htmlFor="location">الموقع العام *</Label>
             <Input
               id="location"
               name="location"
               value={formData.location}
               onChange={handleChange}
-              placeholder="e.g., Conference Room - Building A, Floor 3"
+              placeholder="مثال: الطابق الثالث"
             />
             {errors.location && (
               <p className="text-sm text-destructive flex items-center gap-1">
@@ -187,7 +198,41 @@ export function EditRequestModal({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="priority">Priority *</Label>
+            <Label htmlFor="building">المبنى *</Label>
+            <Input
+              id="building"
+              name="building"
+              value={formData.building}
+              onChange={handleChange}
+              placeholder="مثال: المبنى أ"
+            />
+            {errors.building && (
+              <p className="text-sm text-destructive flex items-center gap-1">
+                <AlertCircle className="h-4 w-4" />
+                {errors.building}
+              </p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="specificLocation">الموقع المحدد *</Label>
+            <Input
+              id="specificLocation"
+              name="specificLocation"
+              value={formData.specificLocation}
+              onChange={handleChange}
+              placeholder="مثال: قاعة الاجتماعات"
+            />
+            {errors.specificLocation && (
+              <p className="text-sm text-destructive flex items-center gap-1">
+                <AlertCircle className="h-4 w-4" />
+                {errors.specificLocation}
+              </p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="priority">الأولوية *</Label>
             <Select
               value={formData.priority}
               onValueChange={(value) => handleSelectChange("priority", value)}
@@ -196,10 +241,10 @@ export function EditRequestModal({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="low">Low</SelectItem>
-                <SelectItem value="medium">Medium</SelectItem>
-                <SelectItem value="high">High</SelectItem>
-                <SelectItem value="urgent">Urgent</SelectItem>
+                <SelectItem value="LOW">منخفض</SelectItem>
+                <SelectItem value="MEDIUM">متوسط</SelectItem>
+                <SelectItem value="HIGH">عالي</SelectItem>
+                <SelectItem value="URGENT">عاجل</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -210,9 +255,9 @@ export function EditRequestModal({
               variant="outline"
               onClick={() => onOpenChange(false)}
             >
-              Cancel
+              إلغاء
             </Button>
-            <Button type="submit">Update Request</Button>
+            <Button type="submit">تحديث الطلب</Button>
           </DialogFooter>
         </form>
       </DialogContent>

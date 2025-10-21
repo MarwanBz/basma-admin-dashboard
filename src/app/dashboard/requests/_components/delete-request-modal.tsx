@@ -37,27 +37,27 @@ export function DeleteRequestModal({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <AlertTriangle className="h-5 w-5 text-destructive" />
-            Delete Request
+            حذف الطلب
           </DialogTitle>
           <DialogDescription>
-            Are you sure you want to delete this maintenance request? This
-            action cannot be undone.
+            هل أنت متأكد من حذف طلب الصيانة هذا؟ لا يمكن التراجع عن هذا الإجراء.
           </DialogDescription>
         </DialogHeader>
 
         <div className="bg-muted/50 p-4 rounded-lg">
           <h4 className="font-medium">{request.title}</h4>
           <p className="text-sm text-muted-foreground mt-1">
-            ID: {request.id} • {request.category} • {request.priority} priority
+            رقم الطلب: {request.id} • {request.category.name} • أولوية{" "}
+            {request.priority}
           </p>
         </div>
 
         <DialogFooter className="gap-2">
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
+            إلغاء
           </Button>
           <Button variant="destructive" onClick={handleConfirm}>
-            Delete Request
+            حذف الطلب
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -4,39 +4,41 @@ import {
   AddRequestModal,
   DeleteRequestModal,
   EditRequestModal,
-  Loading,
-  RequestFilters,
+  RequestDetailsModal,
   RequestsTable,
 } from "./_components";
-import { useEffect, useState } from "react";
+import {
+  useCreateRequest,
+  useDeleteRequest,
+  useRequests,
+  useUpdateRequest,
+} from "@/hooks/useRequests";
 
 import { Button } from "@/components/ui/button";
+import { Loading } from "./_components/loading";
 import { MaintenanceRequest } from "@/types/request";
 import { Plus } from "lucide-react";
-import { useRequests } from "@/hooks/useRequests";
+import { useState } from "react";
 
 export default function MaintenanceRequests() {
   // State management
-  const [requests, setRequests] = useState<MaintenanceRequest[]>([]);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [activeFilter, setActiveFilter] = useState("all");
+  const [searchQuery] = useState("");
+  const [activeFilter] = useState("all");
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [selectedRequest, setSelectedRequest] =
     useState<MaintenanceRequest | null>(null);
 
-  // Load data
+  // API hooks
   const { data: requestsData, isLoading } = useRequests();
-
-  useEffect(() => {
-    if (requestsData) {
-      setRequests(requestsData);
-    }
-  }, [requestsData]);
+  const createRequestMutation = useCreateRequest();
+  const updateRequestMutation = useUpdateRequest();
+  const deleteRequestMutation = useDeleteRequest();
 
   // Filter requests based on active filter and search query
-  const filteredRequests = requests.filter((request) => {
+  const filteredRequests = (requestsData || []).filter((request) => {
     // Filter by status
     if (activeFilter !== "all" && request.status !== activeFilter) {
       return false;
@@ -56,96 +58,107 @@ export default function MaintenanceRequests() {
   });
 
   // Event handlers
-  const handleCreateRequest = (newRequest: {
+  const handleCreateRequest = async (newRequest: {
     title: string;
     description: string;
     location: string;
+    building: string;
+    specificLocation: string;
     priority: string;
-    category: string;
+    categoryId: number;
   }) => {
-    const newRequestId = `REQ-${String(requests.length + 1).padStart(3, "0")}`;
-    const newMaintenanceRequest: MaintenanceRequest = {
-      id: newRequestId,
-      title: newRequest.title,
-      description: newRequest.description,
-      location: newRequest.location,
-      priority: newRequest.priority as "low" | "medium" | "high" | "urgent",
-      category: newRequest.category as
-        | "HVAC"
-        | "Electrical"
-        | "Plumbing"
-        | "Carpentry"
-        | "General"
-        | "Other",
-      status: "pending",
-      assignedTo: null,
-      assignedToName: undefined,
-      date: new Date().toISOString().split("T")[0],
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-
-    setRequests([...requests, newMaintenanceRequest]);
-    setShowAddModal(false);
+    try {
+      await createRequestMutation.mutateAsync({
+        title: newRequest.title,
+        description: newRequest.description,
+        location: newRequest.location,
+        building: newRequest.building,
+        specificLocation: newRequest.specificLocation,
+        priority: newRequest.priority as "LOW" | "MEDIUM" | "HIGH" | "URGENT",
+        categoryId: newRequest.categoryId,
+      });
+      setShowAddModal(false);
+    } catch (error) {
+      console.error("Failed to create request:", error);
+    }
   };
 
-  const handleUpdateRequest = (
+  const handleUpdateRequest = async (
     requestId: string,
     data: {
       title: string;
       description: string;
       location: string;
+      building: string;
+      specificLocation: string;
       priority: string;
-      category: string;
+      categoryId: number;
     }
   ) => {
-    setRequests(
-      requests.map((request) =>
-        request.id === requestId
-          ? {
-              ...request,
-              title: data.title,
-              description: data.description,
-              location: data.location,
-              priority: data.priority as "low" | "medium" | "high" | "urgent",
-              category: data.category as
-                | "HVAC"
-                | "Electrical"
-                | "Plumbing"
-                | "Carpentry"
-                | "General"
-                | "Other",
-              updatedAt: new Date().toISOString(),
-            }
-          : request
-      )
-    );
-    setShowEditModal(false);
-    setSelectedRequest(null);
+    try {
+      await updateRequestMutation.mutateAsync({
+        id: requestId,
+        data: {
+          title: data.title,
+          description: data.description,
+          location: data.location,
+          building: data.building,
+          specificLocation: data.specificLocation,
+          priority: data.priority as "LOW" | "MEDIUM" | "HIGH" | "URGENT",
+          categoryId: data.categoryId,
+        },
+      });
+      setShowEditModal(false);
+      setSelectedRequest(null);
+    } catch (error) {
+      console.error("Failed to update request:", error);
+    }
   };
 
   const handleDeleteRequest = (requestId: string) => {
-    const request = requests.find((r) => r.id === requestId);
+    const request = requestsData?.find((r) => r.id === requestId);
     if (request) {
       setSelectedRequest(request);
       setShowDeleteModal(true);
     }
   };
 
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = async () => {
     if (selectedRequest) {
-      setRequests(requests.filter((r) => r.id !== selectedRequest.id));
-      setShowDeleteModal(false);
-      setSelectedRequest(null);
+      try {
+        await deleteRequestMutation.mutateAsync(selectedRequest.id);
+        setShowDeleteModal(false);
+        setSelectedRequest(null);
+      } catch (error) {
+        console.error("Failed to delete request:", error);
+      }
     }
   };
 
   const handleEditRequest = (requestId: string) => {
-    const request = requests.find((r) => r.id === requestId);
+    const request = requestsData?.find((r) => r.id === requestId);
     if (request) {
       setSelectedRequest(request);
       setShowEditModal(true);
     }
+  };
+
+  const handleViewRequest = (requestId: string) => {
+    const request = requestsData?.find((r) => r.id === requestId);
+    if (request) {
+      setSelectedRequest(request);
+      setShowDetailsModal(true);
+    }
+  };
+
+  const handleAssignRequest = (requestId: string) => {
+    // TODO: Implement assign functionality
+    console.log("Assign request:", requestId);
+  };
+
+  const handleStatusChange = (requestId: string, status: string) => {
+    // TODO: Implement status change functionality
+    console.log("Change status:", requestId, status);
   };
 
   if (isLoading) {
@@ -176,18 +189,21 @@ export default function MaintenanceRequests() {
       <main className="p-6">
         <div className="space-y-6">
           {/* Filters and Search */}
-          <RequestFilters
+          {/* <RequestFilters
             searchQuery={searchQuery}
             setSearchQuery={setSearchQuery}
             activeFilter={activeFilter}
             setActiveFilter={setActiveFilter}
-          />
+          /> */}
 
           {/* Requests Table */}
           <RequestsTable
             requests={filteredRequests}
-            onEditRequest={handleEditRequest}
-            onDeleteRequest={handleDeleteRequest}
+            onAssign={handleAssignRequest}
+            onView={handleViewRequest}
+            onEdit={handleEditRequest}
+            onDelete={handleDeleteRequest}
+            onStatusChange={handleStatusChange}
           />
 
           {/* Add Request Modal */}
@@ -204,6 +220,27 @@ export default function MaintenanceRequests() {
               onOpenChange={setShowEditModal}
               request={selectedRequest}
               onSubmit={(data) => handleUpdateRequest(selectedRequest.id, data)}
+            />
+          )}
+
+          {/* Request Details Modal */}
+          {selectedRequest && (
+            <RequestDetailsModal
+              open={showDetailsModal}
+              onOpenChange={setShowDetailsModal}
+              request={selectedRequest}
+              onEdit={() => {
+                setShowDetailsModal(false);
+                setShowEditModal(true);
+              }}
+              onDelete={() => {
+                setShowDetailsModal(false);
+                setShowDeleteModal(true);
+              }}
+              onAssign={() => {
+                setShowDetailsModal(false);
+                handleAssignRequest(selectedRequest.id);
+              }}
             />
           )}
 
