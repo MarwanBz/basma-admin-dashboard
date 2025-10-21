@@ -159,9 +159,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
               <div className="flex items-center gap-2 px-2 py-2 flex-row-reverse">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                  <Building className="h-4 w-4" />
-                </div>
                 <div className="grid flex-1 text-right text-sm leading-tight">
                   <span className="truncate font-semibold">لوحة التحكم</span>
                   <span className="truncate text-xs">نظام إدارة الصيانة</span>
@@ -193,11 +190,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     >
                       <span className="flex-1 text-right">{item.label}</span>
                       {item.icon}
-                      {item.disabled && (
-                        <span className="text-xs text-muted-foreground me-2">
-                          قريباً
-                        </span>
-                      )}
+                      {item.disabled}
                     </Button>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
