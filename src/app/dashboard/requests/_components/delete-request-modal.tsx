@@ -31,8 +31,9 @@ export function DeleteRequestModal({
 }: DeleteRequestModalProps) {
   const handleConfirm = () => {
     onConfirm();
-    toast.success("تم حذف الطلب بنجاح", {
-      description: `تم حذف طلب الصيانة: ${request.title}`,
+    // Show loading toast immediately
+    toast.loading("جاري حذف الطلب...", {
+      id: `delete-${request.id}`,
     });
     // Don't close modal immediately - let parent handle it after API completes
   };

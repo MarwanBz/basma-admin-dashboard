@@ -22,6 +22,7 @@ import { MaintenanceRequest } from "@/types/request";
 import { Plus } from "lucide-react";
 import { REQUEST_PRIORITY } from "@/constants/app-constants";
 import { UserRole } from "@/types/user";
+import { toast } from "sonner";
 import { useRoleGuard } from "@/hooks/useRoleGuard";
 import { useState } from "react";
 import { useTechnicians } from "@/hooks/useTechnicians";
@@ -90,9 +91,15 @@ export default function MaintenanceRequests() {
         priority: newRequest.priority as keyof typeof REQUEST_PRIORITY,
         categoryId: newRequest.categoryId,
       });
+      toast.success("تم إنشاء الطلب بنجاح", {
+        description: `تم إنشاء طلب الصيانة: ${newRequest.title}`,
+      });
       setShowAddModal(false);
     } catch (error) {
       console.error("Failed to create request:", error);
+      toast.error("حدث خطأ في إنشاء الطلب", {
+        description: "يرجى المحاولة مرة أخرى",
+      });
     }
   };
 
@@ -121,10 +128,16 @@ export default function MaintenanceRequests() {
           categoryId: data.categoryId,
         },
       });
+      toast.success("تم تحديث الطلب بنجاح", {
+        description: `تم تحديث طلب الصيانة: ${data.title}`,
+      });
       setShowEditModal(false);
       setSelectedRequest(null);
     } catch (error) {
       console.error("Failed to update request:", error);
+      toast.error("حدث خطأ في تحديث الطلب", {
+        description: "يرجى المحاولة مرة أخرى",
+      });
     }
   };
 
@@ -140,10 +153,18 @@ export default function MaintenanceRequests() {
     if (selectedRequest) {
       try {
         await deleteRequestMutation.mutateAsync(selectedRequest.id);
+        toast.success("تم حذف الطلب بنجاح", {
+          description: `تم حذف طلب الصيانة: ${selectedRequest.title}`,
+          id: `delete-${selectedRequest.id}`,
+        });
         setShowDeleteModal(false);
         setSelectedRequest(null);
       } catch (error) {
         console.error("Failed to delete request:", error);
+        toast.error("حدث خطأ في حذف الطلب", {
+          description: "يرجى المحاولة مرة أخرى",
+          id: `delete-${selectedRequest.id}`,
+        });
       }
     }
   };
@@ -179,10 +200,19 @@ export default function MaintenanceRequests() {
           requestId: selectedRequest.id,
           assignedToId: technicianId,
         });
+        const technician = techniciansData?.data?.technicians?.find(
+          (t) => t.id === technicianId
+        );
+        toast.success("تم تعيين الفني بنجاح", {
+          description: `تم تعيين ${technician?.name} للطلب: ${selectedRequest.title}`,
+        });
         setShowAssignModal(false);
         setSelectedRequest(null);
       } catch (error) {
         console.error("Failed to assign technician:", error);
+        toast.error("حدث خطأ في تعيين الفني", {
+          description: "يرجى المحاولة مرة أخرى",
+        });
       }
     }
   };

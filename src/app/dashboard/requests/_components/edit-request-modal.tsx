@@ -25,6 +25,7 @@ import { MaintenanceRequest } from "@/types/request";
 import { REQUEST_PRIORITY } from "@/constants/app-constants";
 import { Textarea } from "@/components/ui/textarea";
 import { getPriorityText } from "@/constants/translations";
+import { toast } from "sonner";
 
 interface EditRequestModalProps {
   open: boolean;
@@ -115,7 +116,12 @@ export function EditRequestModal({
     e.preventDefault();
     if (validate()) {
       onSubmit(formData);
+      toast.success("تم تحديث الطلب بنجاح", {
+        description: `تم تحديث طلب الصيانة: ${formData.title}`,
+      });
       // Don't close modal immediately - let parent handle it after API completes
+    } else {
+      toast.error("يرجى ملء جميع الحقول المطلوبة");
     }
   };
 

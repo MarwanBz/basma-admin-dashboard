@@ -28,6 +28,7 @@ import { Label } from "@/components/ui/label";
 import { REQUEST_PRIORITY } from "@/constants/app-constants";
 import { Textarea } from "@/components/ui/textarea";
 import { getPriorityText } from "@/constants/translations";
+import { toast } from "sonner";
 import { useRoleGuard } from "@/hooks/useRoleGuard";
 
 interface AddRequestModalProps {
@@ -135,8 +136,13 @@ export function AddRequestModal({
           }),
       };
       onSubmit(submitData);
+      toast.success("تم إضافة الطلب بنجاح", {
+        description: `تم إضافة طلب الصيانة: ${formData.title}`,
+      });
       // Don't close modal immediately - let parent handle it after API completes
       // Don't reset form immediately - let parent handle it after success
+    } else {
+      toast.error("يرجى ملء جميع الحقول المطلوبة");
     }
   };
 

@@ -21,6 +21,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { toast } from "sonner";
 import { useState } from "react";
 
 interface CreateRequestModalProps {
@@ -86,6 +87,9 @@ export function CreateRequestModal({
     e.preventDefault();
     if (validate()) {
       onSubmit(formData);
+      toast.success("تم إنشاء الطلب بنجاح", {
+        description: `تم إنشاء طلب الصيانة: ${formData.title}`,
+      });
       setFormData({
         title: "",
         description: "",
@@ -94,6 +98,8 @@ export function CreateRequestModal({
         category: "General",
       });
       onOpenChange(false);
+    } else {
+      toast.error("يرجى ملء جميع الحقول المطلوبة");
     }
   };
 

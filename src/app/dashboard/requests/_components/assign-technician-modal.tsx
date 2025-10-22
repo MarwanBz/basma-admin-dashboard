@@ -19,6 +19,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Technician } from "@/types/request";
+import { toast } from "sonner";
 import { useState } from "react";
 
 interface AssignTechnicianModalProps {
@@ -44,9 +45,15 @@ export function AssignTechnicianModal({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (selectedTechnician) {
+      const technician = technicians.find((t) => t.id === selectedTechnician);
       onSubmit(selectedTechnician);
+      toast.success("تم تعيين الفني بنجاح", {
+        description: `تم تعيين ${technician?.name} للطلب`,
+      });
       // Don't close modal immediately - let parent handle it after API completes
       // Don't reset form immediately - let parent handle it after success
+    } else {
+      toast.warning("يرجى اختيار فني للتعيين");
     }
   };
 
