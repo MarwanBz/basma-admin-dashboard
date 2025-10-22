@@ -23,6 +23,7 @@ export interface MaintenanceRequest {
   id: string;
   title: string;
   description: string;
+  customIdentifier: string | null;
   priority: RequestPriority;
   status: RequestStatus;
   categoryId: number;

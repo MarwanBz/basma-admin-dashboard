@@ -1,6 +1,6 @@
 "use client";
 
-import { CreateUserRequest, UpdateUserRequest, User } from "@/types/user";
+import { CreateUserRequest, UpdateUserRequest } from "@/types/user";
 import {
   createUser,
   deleteUser,
@@ -11,12 +11,17 @@ import {
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 /**
- * Query hook for fetching users list
+ * Query hook for fetching users list with pagination
  */
-export function useUsers() {
+export function useUsers(params?: {
+  page?: number;
+  limit?: number;
+  role?: string;
+  search?: string;
+}) {
   return useQuery({
-    queryKey: ["users"],
-    queryFn: () => getUsers(),
+    queryKey: ["users", params],
+    queryFn: () => getUsers(params),
   });
 }
 

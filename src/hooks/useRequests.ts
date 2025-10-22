@@ -3,7 +3,6 @@
 import {
   AssignTechnicianRequest,
   CreateRequestRequest,
-  MaintenanceRequest,
   UpdateRequestRequest,
   UpdateStatusRequest,
 } from "@/types/request";
@@ -19,9 +18,14 @@ import {
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 // API functions - now using real API calls
-const getRequestsAsync = async () => {
-  const response = await getRequests();
-  return response.data.requests;
+const getRequestsAsync = async (params?: {
+  page?: number;
+  limit?: number;
+  status?: string;
+  search?: string;
+}) => {
+  const response = await getRequests(params);
+  return response;
 };
 
 const getRequestByIdAsync = async (id: string) => {
@@ -61,12 +65,17 @@ const updateRequestStatusAsync = async (
 };
 
 /**
- * Query hook for fetching all requests
+ * Query hook for fetching all requests with pagination
  */
-export function useRequests() {
+export function useRequests(params?: {
+  page?: number;
+  limit?: number;
+  status?: string;
+  search?: string;
+}) {
   return useQuery({
-    queryKey: ["requests"],
-    queryFn: () => getRequestsAsync(),
+    queryKey: ["requests", params],
+    queryFn: () => getRequestsAsync(params),
   });
 }
 
