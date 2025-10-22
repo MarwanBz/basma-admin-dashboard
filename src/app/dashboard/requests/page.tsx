@@ -6,6 +6,7 @@ import {
   DeleteRequestModal,
   EditRequestModal,
   RequestDetailsModal,
+  RequestFilters,
   RequestsTable,
 } from "./_components";
 import {
@@ -32,8 +33,8 @@ export default function MaintenanceRequests() {
   const { user } = useRoleGuard([]);
 
   // State management
-  const [searchQuery] = useState("");
-  const [activeFilter] = useState("all");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activeFilter, setActiveFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -43,12 +44,46 @@ export default function MaintenanceRequests() {
   const [selectedRequest, setSelectedRequest] =
     useState<MaintenanceRequest | null>(null);
 
+  // Advanced filter states
+  const [priority, setPriority] = useState("all");
+  const [building, setBuilding] = useState("all");
+  const [assignedToId, setAssignedToId] = useState("all");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
+  const [sortBy, setSortBy] = useState("createdAt");
+  const [sortOrder, setSortOrder] = useState("desc");
+
   // API hooks
   const { data: requestsResponse, isLoading } = useRequests({
     page: currentPage,
     limit: 10,
-    status: activeFilter !== "all" ? activeFilter : undefined,
+    status:
+      activeFilter !== "all"
+        ? (activeFilter as
+            | "DRAFT"
+            | "SUBMITTED"
+            | "ASSIGNED"
+            | "IN_PROGRESS"
+            | "COMPLETED"
+            | "CLOSED"
+            | "REJECTED")
+        : undefined,
     search: searchQuery || undefined,
+    priority:
+      priority !== "all"
+        ? (priority as "LOW" | "MEDIUM" | "HIGH" | "URGENT")
+        : undefined,
+    building: building !== "all" ? building : undefined,
+    assignedToId: assignedToId !== "all" ? assignedToId : undefined,
+    dateFrom: dateFrom || undefined,
+    dateTo: dateTo || undefined,
+    sortBy: sortBy as
+      | "status"
+      | "title"
+      | "priority"
+      | "createdAt"
+      | "updatedAt",
+    sortOrder: sortOrder as "asc" | "desc",
   });
   const { data: techniciansData, isLoading: isLoadingTechnicians } =
     useTechnicians();
@@ -212,6 +247,20 @@ export default function MaintenanceRequests() {
     console.log("Change status:", requestId, status);
   };
 
+  // Clear all filters
+  const handleClearFilters = () => {
+    setSearchQuery("");
+    setActiveFilter("all");
+    setPriority("all");
+    setBuilding("all");
+    setAssignedToId("all");
+    setDateFrom("");
+    setDateTo("");
+    setSortBy("createdAt");
+    setSortOrder("desc");
+    setCurrentPage(1);
+  };
+
   if (isLoading || isLoadingTechnicians) {
     return <Loading />;
   }
@@ -240,12 +289,27 @@ export default function MaintenanceRequests() {
       <main className="p-6">
         <div className="space-y-6">
           {/* Filters and Search */}
-          {/* <RequestFilters
+          <RequestFilters
             searchQuery={searchQuery}
             setSearchQuery={setSearchQuery}
             activeFilter={activeFilter}
             setActiveFilter={setActiveFilter}
-          /> */}
+            priority={priority}
+            setPriority={setPriority}
+            building={building}
+            setBuilding={setBuilding}
+            assignedToId={assignedToId}
+            setAssignedToId={setAssignedToId}
+            dateFrom={dateFrom}
+            setDateFrom={setDateFrom}
+            dateTo={dateTo}
+            setDateTo={setDateTo}
+            sortBy={sortBy}
+            setSortBy={setSortBy}
+            sortOrder={sortOrder}
+            setSortOrder={setSortOrder}
+            onClearFilters={handleClearFilters}
+          />
 
           {/* Requests Table */}
           <RequestsTable
