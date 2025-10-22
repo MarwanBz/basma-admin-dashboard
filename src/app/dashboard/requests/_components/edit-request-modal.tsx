@@ -39,6 +39,7 @@ interface EditRequestModalProps {
     priority: string;
     categoryId: number;
   }) => void;
+  isLoading?: boolean;
 }
 
 export function EditRequestModal({
@@ -46,6 +47,7 @@ export function EditRequestModal({
   onOpenChange,
   request,
   onSubmit,
+  isLoading = false,
 }: EditRequestModalProps) {
   const [formData, setFormData] = useState({
     title: "",
@@ -113,7 +115,7 @@ export function EditRequestModal({
     e.preventDefault();
     if (validate()) {
       onSubmit(formData);
-      onOpenChange(false);
+      // Don't close modal immediately - let parent handle it after API completes
     }
   };
 
@@ -267,7 +269,9 @@ export function EditRequestModal({
             >
               إلغاء
             </Button>
-            <Button type="submit">تحديث الطلب</Button>
+            <Button type="submit" disabled={isLoading}>
+              {isLoading ? "جاري التحديث..." : "تحديث الطلب"}
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>

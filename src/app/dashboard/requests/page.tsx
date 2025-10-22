@@ -243,6 +243,7 @@ export default function MaintenanceRequests() {
             showModal={showAddModal}
             setShowModal={setShowAddModal}
             onSubmit={handleCreateRequest}
+            isLoading={createRequestMutation.isPending}
           />
 
           {/* Edit Request Modal */}
@@ -252,6 +253,7 @@ export default function MaintenanceRequests() {
               onOpenChange={setShowEditModal}
               request={selectedRequest}
               onSubmit={(data) => handleUpdateRequest(selectedRequest.id, data)}
+              isLoading={updateRequestMutation.isPending}
             />
           )}
 
@@ -285,6 +287,7 @@ export default function MaintenanceRequests() {
               onOpenChange={setShowDeleteModal}
               request={selectedRequest}
               onConfirm={handleConfirmDelete}
+              isLoading={deleteRequestMutation.isPending}
             />
           )}
 
@@ -294,6 +297,7 @@ export default function MaintenanceRequests() {
             onOpenChange={setShowAssignModal}
             technicians={techniciansData?.data?.technicians || []}
             onSubmit={handleAssignTechnician}
+            isLoading={assignTechnicianMutation.isPending}
           />
         </div>
       </main>

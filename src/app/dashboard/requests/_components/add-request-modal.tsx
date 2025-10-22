@@ -43,12 +43,14 @@ interface AddRequestModalProps {
     categoryId: number;
     customIdentifier?: string;
   }) => void;
+  isLoading?: boolean;
 }
 
 export function AddRequestModal({
   showModal,
   setShowModal,
   onSubmit,
+  isLoading = false,
 }: AddRequestModalProps) {
   const { user } = useRoleGuard([]);
   const { data: buildingsResponse } = useBuildingConfigs();
@@ -133,18 +135,8 @@ export function AddRequestModal({
           }),
       };
       onSubmit(submitData);
-      setFormData({
-        title: "",
-        description: "",
-        location: "",
-        building: "",
-        specificLocation: "",
-        priority: "MEDIUM",
-        categoryId: 1,
-        customIdentifier: "",
-      });
-      setNextId("");
-      setShowModal(false);
+      // Don't close modal immediately - let parent handle it after API completes
+      // Don't reset form immediately - let parent handle it after success
     }
   };
 
@@ -330,7 +322,9 @@ export function AddRequestModal({
             >
               إلغاء
             </Button>
-            <Button type="submit">إضافة الطلب</Button>
+            <Button type="submit" disabled={isLoading}>
+              {isLoading ? "جاري الإضافة..." : "إضافة الطلب"}
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>

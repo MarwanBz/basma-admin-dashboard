@@ -26,6 +26,7 @@ interface AssignTechnicianModalProps {
   onOpenChange: (open: boolean) => void;
   technicians: Technician[];
   onSubmit: (technicianId: string) => void;
+  isLoading?: boolean;
 }
 
 export function AssignTechnicianModal({
@@ -33,6 +34,7 @@ export function AssignTechnicianModal({
   onOpenChange,
   technicians,
   onSubmit,
+  isLoading = false,
 }: AssignTechnicianModalProps) {
   const [selectedTechnician, setSelectedTechnician] = useState("");
 
@@ -43,8 +45,8 @@ export function AssignTechnicianModal({
     e.preventDefault();
     if (selectedTechnician) {
       onSubmit(selectedTechnician);
-      setSelectedTechnician("");
-      onOpenChange(false);
+      // Don't close modal immediately - let parent handle it after API completes
+      // Don't reset form immediately - let parent handle it after success
     }
   };
 
@@ -100,10 +102,12 @@ export function AssignTechnicianModal({
             <Button
               type="submit"
               disabled={
-                !selectedTechnician || availableTechnicians.length === 0
+                !selectedTechnician ||
+                availableTechnicians.length === 0 ||
+                isLoading
               }
             >
-              تعيين الفني
+              {isLoading ? "جاري التعيين..." : "تعيين الفني"}
             </Button>
           </DialogFooter>
         </form>

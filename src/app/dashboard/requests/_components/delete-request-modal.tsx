@@ -18,6 +18,7 @@ interface DeleteRequestModalProps {
   onOpenChange: (open: boolean) => void;
   request: MaintenanceRequest;
   onConfirm: () => void;
+  isLoading?: boolean;
 }
 
 export function DeleteRequestModal({
@@ -25,10 +26,11 @@ export function DeleteRequestModal({
   onOpenChange,
   request,
   onConfirm,
+  isLoading = false,
 }: DeleteRequestModalProps) {
   const handleConfirm = () => {
     onConfirm();
-    onOpenChange(false);
+    // Don't close modal immediately - let parent handle it after API completes
   };
 
   return (
@@ -56,8 +58,12 @@ export function DeleteRequestModal({
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             إلغاء
           </Button>
-          <Button variant="destructive" onClick={handleConfirm}>
-            حذف الطلب
+          <Button
+            variant="destructive"
+            onClick={handleConfirm}
+            disabled={isLoading}
+          >
+            {isLoading ? "جاري الحذف..." : "حذف الطلب"}
           </Button>
         </DialogFooter>
       </DialogContent>

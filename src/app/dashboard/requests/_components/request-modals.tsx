@@ -31,6 +31,7 @@ interface RequestModalsProps {
   onEditRequest: (requestId: string, data: any) => void;
   onAssignTechnician: (technicianId: string) => void;
   onDeleteRequest: () => void;
+  isCreateLoading?: boolean;
 }
 
 export function RequestModals({
@@ -50,6 +51,7 @@ export function RequestModals({
   onEditRequest,
   onAssignTechnician,
   onDeleteRequest,
+  isCreateLoading = false,
 }: RequestModalsProps) {
   return (
     <>
@@ -57,6 +59,7 @@ export function RequestModals({
         open={showCreateModal}
         onOpenChange={setShowCreateModal}
         onSubmit={onCreateRequest}
+        isLoading={isCreateLoading}
       />
 
       {selectedRequest && (

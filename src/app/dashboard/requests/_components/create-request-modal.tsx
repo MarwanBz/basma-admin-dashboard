@@ -33,12 +33,14 @@ interface CreateRequestModalProps {
     priority: string;
     category: string;
   }) => void;
+  isLoading?: boolean;
 }
 
 export function CreateRequestModal({
   open,
   onOpenChange,
   onSubmit,
+  isLoading = false,
 }: CreateRequestModalProps) {
   const [formData, setFormData] = useState({
     title: "",
@@ -204,7 +206,9 @@ export function CreateRequestModal({
             >
               Cancel
             </Button>
-            <Button type="submit">Create Request</Button>
+            <Button type="submit" disabled={isLoading}>
+              {isLoading ? "Creating..." : "Create Request"}
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>

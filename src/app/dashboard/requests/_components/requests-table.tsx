@@ -23,6 +23,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { canAssign, canDelete, canEdit } from "@/lib/role-permissions";
 import { getPriorityText, priorityColors } from "@/lib/status-utils";
 
 import { Badge } from "@/components/ui/badge";
@@ -115,24 +116,33 @@ export function RequestsTable({
                         <Eye className="h-4 w-4 mr-2" />
                         عرض التفاصيل
                       </DropdownMenuItem>
-                      
-                      {userRole === "MAINTENANCE_ADMIN" || userRole === "SUPER_ADMIN" && <DropdownMenuItem onClick={() => onEdit(request.id)}>
-                        <Edit className="h-4 w-4 mr-2" />
-                        تعديل
-                      </DropdownMenuItem>}
-                      {request.status === "SUBMITTED" && (
-                        <DropdownMenuItem onClick={() => onAssign(request.id)}>
-                          <UserPlus className="h-4 w-4 mr-2" />
-                          تعيين فني
+
+                      {canEdit(userRole) && (
+                        <DropdownMenuItem onClick={() => onEdit(request.id)}>
+                          <Edit className="h-4 w-4 mr-2" />
+                          تعديل
                         </DropdownMenuItem>
                       )}
-                      {userRole === "SUPER_ADMIN" || userRole === "MAINTENANCE_ADMIN" && <DropdownMenuItem
-                        onClick={() => onDelete(request.id)}
-                        className="text-destructive"
-                      >
-                        <Trash2 className="h-4 w-4 mr-2" />
-                        حذف
-                      </DropdownMenuItem>}
+
+                      {request.status === "SUBMITTED" &&
+                        canAssign(userRole) && (
+                          <DropdownMenuItem
+                            onClick={() => onAssign(request.id)}
+                          >
+                            <UserPlus className="h-4 w-4 mr-2" />
+                            تعيين فني
+                          </DropdownMenuItem>
+                        )}
+
+                      {canDelete(userRole) && (
+                        <DropdownMenuItem
+                          onClick={() => onDelete(request.id)}
+                          className="text-destructive"
+                        >
+                          <Trash2 className="h-4 w-4 mr-2" />
+                          حذف
+                        </DropdownMenuItem>
+                      )}
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </TableCell>

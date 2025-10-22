@@ -17,6 +17,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { canAssign, canDelete, canEdit } from "@/lib/role-permissions";
 import { getPriorityText, priorityColors } from "@/lib/status-utils";
 
 import { Badge } from "@/components/ui/badge";
@@ -126,19 +127,22 @@ export function RequestDetailsModal({
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             إغلاق
           </Button>
-          {userRole === "SUPER_ADMIN" ||
-            (userRole === "MAINTENANCE_ADMIN" && (
-              <>
-                {request.status === "SUBMITTED" && (
-                  <Button onClick={onAssign} className="gap-2">
-                    <UserPlus className="h-4 w-4" />
-                    تعيين فني
-                  </Button>
-                )}
-                <Button onClick={onEdit} variant="outline" className="gap-2">
-                  <Edit className="h-4 w-4" />
-                  تعديل
+
+          {canEdit(userRole) && (
+            <>
+              {request.status === "SUBMITTED" && canAssign(userRole) && (
+                <Button onClick={onAssign} className="gap-2">
+                  <UserPlus className="h-4 w-4" />
+                  تعيين فني
                 </Button>
+              )}
+
+              <Button onClick={onEdit} variant="outline" className="gap-2">
+                <Edit className="h-4 w-4" />
+                تعديل
+              </Button>
+
+              {canDelete(userRole) && (
                 <Button
                   onClick={onDelete}
                   variant="destructive"
@@ -147,8 +151,9 @@ export function RequestDetailsModal({
                   <Trash2 className="h-4 w-4" />
                   حذف
                 </Button>
-              </>
-            ))}
+              )}
+            </>
+          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>
