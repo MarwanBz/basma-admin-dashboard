@@ -14,17 +14,31 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { getPriorityColor, getPriorityText } from "@/constants/translations";
 
 import { Button } from "@/components/ui/button";
+import { RequestDetailsModal } from "../requests/_components/request-details-modal";
 import { RequestPriority } from "@/constants/app-constants";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useBuildingStatistics } from "@/hooks/useBuildingConfigs";
+import { useRequest } from "@/hooks/useRequests";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 export function BasmaAdminDashboard() {
   const router = useRouter();
+  const [selectedRequestId, setSelectedRequestId] = useState<string | null>(
+    null
+  );
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const { data: buildingStatsResponse, isLoading: statsLoading } =
     useBuildingStatistics();
+
+  // Fetch full request details when a request is selected
+  const { data: selectedRequest, isLoading: requestLoading } = useRequest(
+    selectedRequestId || ""
+  );
 
   const buildingStats = buildingStatsResponse?.data;
 
@@ -43,6 +57,16 @@ export function BasmaAdminDashboard() {
 
   // Get recent requests from API
   const recentRequests = buildingStats?.recentRequests?.slice(0, 4) || [];
+
+  const handleReviewRequest = (requestId: string) => {
+    setSelectedRequestId(requestId);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedRequestId(null);
+  };
 
   const stats = [
     {
@@ -144,11 +168,14 @@ export function BasmaAdminDashboard() {
                     >
                       {getPriorityText(request.priority as RequestPriority)}
                     </span>
-                    <div className="mt-2 space-x-2">
-                      <Button size="sm" variant="outline">
+                    <div className="mt-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleReviewRequest(request.id)}
+                      >
                         مراجعة
                       </Button>
-                      <Button size="sm">موافقة</Button>
                     </div>
                   </div>
                 </div>
@@ -170,6 +197,46 @@ export function BasmaAdminDashboard() {
           </Button>
         </CardContent>
       </Card>
+
+      {/* Request Details Modal */}
+      {selectedRequestId && (
+        <>
+          {requestLoading ? (
+            <Dialog open={isModalOpen} onOpenChange={handleCloseModal}>
+              <DialogContent className="max-w-2xl">
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Skeleton className="h-6 w-3/4" />
+                    <Skeleton className="h-4 w-1/2" />
+                  </div>
+                  <div className="space-y-3">
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-4 w-2/3" />
+                  </div>
+                  <div className="space-y-3">
+                    <Skeleton className="h-20 w-full" />
+                  </div>
+                  <div className="flex justify-end space-x-2">
+                    <Skeleton className="h-10 w-16" />
+                    <Skeleton className="h-10 w-20" />
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
+          ) : selectedRequest ? (
+            <RequestDetailsModal
+              open={isModalOpen}
+              onOpenChange={handleCloseModal}
+              request={selectedRequest}
+              userRole="BASMA_ADMIN"
+              onEdit={() => {}}
+              onDelete={() => {}}
+              onAssign={() => {}}
+            />
+          ) : null}
+        </>
+      )}
     </>
   );
 }
