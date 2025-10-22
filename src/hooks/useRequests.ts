@@ -21,8 +21,24 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 const getRequestsAsync = async (params?: {
   page?: number;
   limit?: number;
-  status?: string;
+  sortBy?: "status" | "title" | "priority" | "createdAt" | "updatedAt";
+  sortOrder?: "asc" | "desc";
+  status?:
+    | "DRAFT"
+    | "SUBMITTED"
+    | "ASSIGNED"
+    | "IN_PROGRESS"
+    | "COMPLETED"
+    | "CLOSED"
+    | "REJECTED";
+  priority?: "LOW" | "MEDIUM" | "HIGH" | "URGENT";
+  categoryId?: number;
+  assignedToId?: string;
+  requestedById?: string;
+  building?: string;
   search?: string;
+  dateFrom?: string;
+  dateTo?: string;
 }) => {
   const response = await getRequests(params);
   return response;
@@ -70,8 +86,24 @@ const updateRequestStatusAsync = async (
 export function useRequests(params?: {
   page?: number;
   limit?: number;
-  status?: string;
+  sortBy?: "status" | "title" | "priority" | "createdAt" | "updatedAt";
+  sortOrder?: "asc" | "desc";
+  status?:
+    | "DRAFT"
+    | "SUBMITTED"
+    | "ASSIGNED"
+    | "IN_PROGRESS"
+    | "COMPLETED"
+    | "CLOSED"
+    | "REJECTED";
+  priority?: "LOW" | "MEDIUM" | "HIGH" | "URGENT";
+  categoryId?: number;
+  assignedToId?: string;
+  requestedById?: string;
+  building?: string;
   search?: string;
+  dateFrom?: string;
+  dateTo?: string;
 }) {
   return useQuery({
     queryKey: ["requests", params],

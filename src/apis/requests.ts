@@ -16,15 +16,43 @@ import { apiClient } from "./client";
 export async function getRequests(params?: {
   page?: number;
   limit?: number;
-  status?: string;
+  sortBy?: "status" | "title" | "priority" | "createdAt" | "updatedAt";
+  sortOrder?: "asc" | "desc";
+  status?:
+    | "DRAFT"
+    | "SUBMITTED"
+    | "ASSIGNED"
+    | "IN_PROGRESS"
+    | "COMPLETED"
+    | "CLOSED"
+    | "REJECTED";
+  priority?: "LOW" | "MEDIUM" | "HIGH" | "URGENT";
+  categoryId?: number;
+  assignedToId?: string;
+  requestedById?: string;
+  building?: string;
   search?: string;
+  dateFrom?: string;
+  dateTo?: string;
 }): Promise<GetRequestsResponse> {
   const searchParams = new URLSearchParams();
 
   if (params?.page) searchParams.append("page", params.page.toString());
   if (params?.limit) searchParams.append("limit", params.limit.toString());
+  if (params?.sortBy) searchParams.append("sortBy", params.sortBy);
+  if (params?.sortOrder) searchParams.append("sortOrder", params.sortOrder);
   if (params?.status) searchParams.append("status", params.status);
+  if (params?.priority) searchParams.append("priority", params.priority);
+  if (params?.categoryId)
+    searchParams.append("categoryId", params.categoryId.toString());
+  if (params?.assignedToId)
+    searchParams.append("assignedToId", params.assignedToId);
+  if (params?.requestedById)
+    searchParams.append("requestedById", params.requestedById);
+  if (params?.building) searchParams.append("building", params.building);
   if (params?.search) searchParams.append("search", params.search);
+  if (params?.dateFrom) searchParams.append("dateFrom", params.dateFrom);
+  if (params?.dateTo) searchParams.append("dateTo", params.dateTo);
 
   const queryString = searchParams.toString();
   const url = queryString ? `requests?${queryString}` : "requests";
