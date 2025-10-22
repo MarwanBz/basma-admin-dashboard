@@ -9,10 +9,27 @@ import {
 import { apiClient } from "./client";
 
 /**
- * Get all users with optional filtering
+ * Get all users with optional filtering and pagination
  */
-export async function getUsers(): Promise<GetUsersResponse> {
-  const response = await apiClient.get<GetUsersResponse>(`super-admin/users`);
+export async function getUsers(params?: {
+  page?: number;
+  limit?: number;
+  role?: string;
+  search?: string;
+}): Promise<GetUsersResponse> {
+  const searchParams = new URLSearchParams();
+
+  if (params?.page) searchParams.append("page", params.page.toString());
+  if (params?.limit) searchParams.append("limit", params.limit.toString());
+  if (params?.role) searchParams.append("role", params.role);
+  if (params?.search) searchParams.append("search", params.search);
+
+  const queryString = searchParams.toString();
+  const url = queryString
+    ? `super-admin/users?${queryString}`
+    : "super-admin/users";
+
+  const response = await apiClient.get<GetUsersResponse>(url);
   return response.data;
 }
 
