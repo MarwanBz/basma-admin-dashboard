@@ -115,23 +115,24 @@ export function RequestsTable({
                         <Eye className="h-4 w-4 mr-2" />
                         عرض التفاصيل
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => onEdit(request.id)}>
+                      
+                      {userRole === "MAINTENANCE_ADMIN" || userRole === "SUPER_ADMIN" && <DropdownMenuItem onClick={() => onEdit(request.id)}>
                         <Edit className="h-4 w-4 mr-2" />
                         تعديل
-                      </DropdownMenuItem>
+                      </DropdownMenuItem>}
                       {request.status === "SUBMITTED" && (
                         <DropdownMenuItem onClick={() => onAssign(request.id)}>
                           <UserPlus className="h-4 w-4 mr-2" />
                           تعيين فني
                         </DropdownMenuItem>
                       )}
-                      <DropdownMenuItem
+                      {userRole === "SUPER_ADMIN" || userRole === "MAINTENANCE_ADMIN" && <DropdownMenuItem
                         onClick={() => onDelete(request.id)}
                         className="text-destructive"
                       >
                         <Trash2 className="h-4 w-4 mr-2" />
                         حذف
-                      </DropdownMenuItem>
+                      </DropdownMenuItem>}
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </TableCell>

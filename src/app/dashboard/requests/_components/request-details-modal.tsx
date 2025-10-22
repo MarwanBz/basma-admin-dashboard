@@ -126,20 +126,29 @@ export function RequestDetailsModal({
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             إغلاق
           </Button>
-          {request.status === "SUBMITTED" && (
-            <Button onClick={onAssign} className="gap-2">
-              <UserPlus className="h-4 w-4" />
-              تعيين فني
-            </Button>
-          )}
-          <Button onClick={onEdit} variant="outline" className="gap-2">
-            <Edit className="h-4 w-4" />
-            تعديل
-          </Button>
-          <Button onClick={onDelete} variant="destructive" className="gap-2">
-            <Trash2 className="h-4 w-4" />
-            حذف
-          </Button>
+          {userRole === "SUPER_ADMIN" ||
+            (userRole === "MAINTENANCE_ADMIN" && (
+              <>
+                {request.status === "SUBMITTED" && (
+                  <Button onClick={onAssign} className="gap-2">
+                    <UserPlus className="h-4 w-4" />
+                    تعيين فني
+                  </Button>
+                )}
+                <Button onClick={onEdit} variant="outline" className="gap-2">
+                  <Edit className="h-4 w-4" />
+                  تعديل
+                </Button>
+                <Button
+                  onClick={onDelete}
+                  variant="destructive"
+                  className="gap-2"
+                >
+                  <Trash2 className="h-4 w-4" />
+                  حذف
+                </Button>
+              </>
+            ))}
         </DialogFooter>
       </DialogContent>
     </Dialog>
