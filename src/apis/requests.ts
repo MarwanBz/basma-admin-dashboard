@@ -11,10 +11,25 @@ import {
 import { apiClient } from "./client";
 
 /**
- * Get all requests with optional filtering
+ * Get all requests with optional filtering and pagination
  */
-export async function getRequests(): Promise<GetRequestsResponse> {
-  const response = await apiClient.get<GetRequestsResponse>(`requests`);
+export async function getRequests(params?: {
+  page?: number;
+  limit?: number;
+  status?: string;
+  search?: string;
+}): Promise<GetRequestsResponse> {
+  const searchParams = new URLSearchParams();
+
+  if (params?.page) searchParams.append("page", params.page.toString());
+  if (params?.limit) searchParams.append("limit", params.limit.toString());
+  if (params?.status) searchParams.append("status", params.status);
+  if (params?.search) searchParams.append("search", params.search);
+
+  const queryString = searchParams.toString();
+  const url = queryString ? `requests?${queryString}` : "requests";
+
+  const response = await apiClient.get<GetRequestsResponse>(url);
   return response.data;
 }
 
