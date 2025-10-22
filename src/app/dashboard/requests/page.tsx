@@ -34,6 +34,7 @@ export default function MaintenanceRequests() {
   // State management
   const [searchQuery] = useState("");
   const [activeFilter] = useState("all");
+  const [currentPage, setCurrentPage] = useState(1);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -43,7 +44,12 @@ export default function MaintenanceRequests() {
     useState<MaintenanceRequest | null>(null);
 
   // API hooks
-  const { data: requestsData, isLoading } = useRequests();
+  const { data: requestsResponse, isLoading } = useRequests({
+    page: currentPage,
+    limit: 10,
+    status: activeFilter !== "all" ? activeFilter : undefined,
+    search: searchQuery || undefined,
+  });
   const { data: techniciansData, isLoading: isLoadingTechnicians } =
     useTechnicians();
   const createRequestMutation = useCreateRequest();
@@ -51,25 +57,9 @@ export default function MaintenanceRequests() {
   const deleteRequestMutation = useDeleteRequest();
   const assignTechnicianMutation = useAssignTechnician();
 
-  // Filter requests based on active filter and search query
-  const filteredRequests = (requestsData || []).filter((request) => {
-    // Filter by status
-    if (activeFilter !== "all" && request.status !== activeFilter) {
-      return false;
-    }
-
-    // Filter by search query
-    if (
-      searchQuery &&
-      !request.title.toLowerCase().includes(searchQuery.toLowerCase()) &&
-      !request.id.toLowerCase().includes(searchQuery.toLowerCase()) &&
-      !request.location.toLowerCase().includes(searchQuery.toLowerCase())
-    ) {
-      return false;
-    }
-
-    return true;
-  });
+  // Extract data from response
+  const requestsData = requestsResponse?.data?.requests || [];
+  const pagination = requestsResponse?.data?.pagination;
 
   // Event handlers
   const handleCreateRequest = async (newRequest: {
@@ -259,13 +249,18 @@ export default function MaintenanceRequests() {
 
           {/* Requests Table */}
           <RequestsTable
-            requests={filteredRequests}
+            requests={requestsData}
             userRole={(user?.roles?.[0] as UserRole) || "BASMA_ADMIN"}
             onAssign={handleAssignRequest}
             onView={handleViewRequest}
             onEdit={handleEditRequest}
             onDelete={handleDeleteRequest}
             onStatusChange={handleStatusChange}
+            currentPage={pagination?.page || 1}
+            totalPages={pagination?.totalPages || 1}
+            totalItems={pagination?.total || 0}
+            onPageChange={setCurrentPage}
+            isLoading={isLoading}
           />
 
           {/* Add Request Modal */}

@@ -20,12 +20,12 @@ import {
   useUpdateUser,
   useUsers,
 } from "@/hooks/useUsers";
-import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { Unauthorized } from "@/components/Unauthorized";
 import { useRoleGuard } from "@/hooks/useRoleGuard";
+import { useState } from "react";
 
 export default function UsersManagement() {
   const { hasAccess, isLoading: roleLoading } = useRoleGuard([
@@ -35,6 +35,7 @@ export default function UsersManagement() {
 
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState("all");
+  const [currentPage, setCurrentPage] = useState(1);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -48,12 +49,22 @@ export default function UsersManagement() {
   });
   const [formErrors, setFormErrors] = useState<FormErrors>({});
 
-  const { data: usersResponse, isLoading, error } = useUsers();
+  const {
+    data: usersResponse,
+    isLoading,
+    error,
+  } = useUsers({
+    page: currentPage,
+    limit: 10,
+    role: activeFilter !== "all" ? activeFilter : undefined,
+    search: searchQuery || undefined,
+  });
   const createUserMutation = useCreateUser();
   const updateUserMutation = useUpdateUser();
   const deleteUserMutation = useDeleteUser();
 
   const usersData = usersResponse?.data.users || [];
+  const pagination = usersResponse?.data.pagination;
 
   if (roleLoading) {
     return <Loading />;
@@ -293,6 +304,11 @@ export default function UsersManagement() {
             users={usersData}
             onEditUser={handleOpenEditModal}
             onDeleteUser={handleOpenDeleteModal}
+            currentPage={pagination?.page || 1}
+            totalPages={pagination?.pages || 1}
+            totalItems={pagination?.total || 0}
+            onPageChange={setCurrentPage}
+            isLoading={isLoading}
           />
 
           {/* Add User Modal */}
