@@ -12,6 +12,7 @@ import {
 import { AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { MaintenanceRequest } from "@/types/request";
+import { toast } from "sonner";
 
 interface DeleteRequestModalProps {
   open: boolean;
@@ -30,6 +31,9 @@ export function DeleteRequestModal({
 }: DeleteRequestModalProps) {
   const handleConfirm = () => {
     onConfirm();
+    toast.success("تم حذف الطلب بنجاح", {
+      description: `تم حذف طلب الصيانة: ${request.title}`,
+    });
     // Don't close modal immediately - let parent handle it after API completes
   };
 

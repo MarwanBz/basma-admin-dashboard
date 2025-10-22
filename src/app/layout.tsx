@@ -3,6 +3,7 @@ import "./globals.css";
 import type { Metadata } from "next";
 import { QueryProvider } from "@apis/query";
 import { Tajawal } from "next/font/google";
+import { Toaster } from "@/components/ui/sonner";
 
 const tajawal = Tajawal({
   subsets: ["arabic"],
@@ -22,10 +23,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ar" dir="rtl">
-      <body className={`${tajawal.variable} font-sans bg-background text-foreground`}>
-        <QueryProvider>
-        {children}
-        </QueryProvider>
+      <body
+        className={`${tajawal.variable} font-sans bg-background text-foreground`}
+      >
+        <QueryProvider>{children}</QueryProvider>
+        <Toaster />
       </body>
     </html>
   );
