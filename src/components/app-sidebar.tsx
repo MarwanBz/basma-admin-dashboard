@@ -86,7 +86,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       label: "إدارة المستخدمين",
       icon: <Users className="h-4 w-4" />,
       href: "/dashboard/users",
-      roles: ["SUPER_ADMIN", "MAINTENANCE_ADMIN"],
+      roles: ["SUPER_ADMIN"],
     },
     {
       label: "المنشآت",
