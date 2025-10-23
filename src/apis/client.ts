@@ -1,7 +1,5 @@
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig } from "axios";
-
-import { clearTokens } from "@apis/token";
-import { getTokens } from "@apis/token";
+import { clearTokens, getTokens, setTokens } from "@apis/token";
 
 export const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "/api";
 
@@ -36,7 +34,7 @@ function createAxiosClient(): AxiosInstance {
       if (status === 401 && !originalRequest?._retry) {
         originalRequest._retry = true;
         try {
-          const refreshed = await refreshAccessToken();
+          const refreshed = await refreshAccessToken(instance);
           if (refreshed) {
             return instance(originalRequest);
           }
@@ -52,15 +50,29 @@ function createAxiosClient(): AxiosInstance {
   return instance;
 }
 
-async function refreshAccessToken(): Promise<boolean> {
-  // Cookie-based refresh: server reads refresh cookie and sets new cookies.
+async function refreshAccessToken(instance: AxiosInstance): Promise<boolean> {
   try {
-    await axios.post(
-      `${API_BASE_URL}/auth/refresh`,
-      {},
-      { withCredentials: true }
-    );
-    return true;
+    // Get refresh token from cookies
+    const tokens = await getTokens();
+    if (!tokens.refreshToken) {
+      return false;
+    }
+
+    // Send refresh token in request body
+    const response = await instance.post("/auth/refresh", {
+      refreshToken: tokens.refreshToken,
+    });
+
+    // Update tokens with new tokens from response
+    if (response.data?.data?.accessToken && response.data?.data?.refreshToken) {
+      await setTokens({
+        accessToken: response.data.data.accessToken,
+        refreshToken: response.data.data.refreshToken, // Use NEW refresh token
+      });
+      return true;
+    }
+
+    return false;
   } catch {
     return false;
   }
