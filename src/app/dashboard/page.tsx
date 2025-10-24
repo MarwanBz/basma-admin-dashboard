@@ -10,6 +10,8 @@ import { Unauthorized } from "@/components/Unauthorized";
 import { useRoleGuard } from "@/hooks/useRoleGuard";
 
 export default function DashboardPage() {
+  console.log("📱 DASHBOARD PAGE LOADING:", new Date().toISOString());
+
   const { hasAccess, hasAnyRole, isLoading } = useRoleGuard([
     "SUPER_ADMIN",
     "BASMA_ADMIN",

@@ -16,13 +16,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { getDaysUntilExpiry, getTokenAge } from "@/lib/fcm-storage";
+import { getDaysUntilExpiry, getTokenAge } from "@/lib/firebase";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { TopicSubscriptions } from "./topic-subscriptions";
+import { sendTestNotification } from "@/apis/notifications";
 import { toast } from "sonner";
 import { useDevices } from "@/hooks/useNotifications";
 import { useWebPushNotifications } from "@/hooks/useWebPushNotifications";
@@ -30,12 +31,11 @@ import { useWebPushNotifications } from "@/hooks/useWebPushNotifications";
 export default function NotificationSettingsPage() {
   const {
     permission,
-    fcmToken,
+    token,
     isSupported,
     isLoading,
     requestPermission,
-    showTestNotification,
-    refreshToken,
+    getToken,
   } = useWebPushNotifications();
 
   const { data: devicesResponse } = useDevices();
@@ -43,14 +43,17 @@ export default function NotificationSettingsPage() {
   const webDevices = devices.filter((d) => d.platform === "WEB");
 
   const handleCopyToken = () => {
-    if (fcmToken) {
-      navigator.clipboard.writeText(fcmToken);
+    if (token) {
+      navigator.clipboard.writeText(token);
       toast.success("تم نسخ رمز الإشعارات");
     }
   };
 
   const handleRefreshToken = async () => {
-    await refreshToken();
+    const newToken = await getToken();
+    if (newToken) {
+      toast.success("تم تحديث رمز الإشعارات");
+    }
   };
 
   const getPermissionBadge = () => {
@@ -117,7 +120,7 @@ export default function NotificationSettingsPage() {
             {getPermissionBadge()}
           </div>
 
-          {fcmToken && (
+          {token && (
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="fcm-token">رمز FCM للجهاز الحالي</Label>
@@ -147,7 +150,7 @@ export default function NotificationSettingsPage() {
               </div>
               <Input
                 id="fcm-token"
-                value={fcmToken}
+                value={token}
                 readOnly
                 className="font-mono text-xs"
               />
@@ -205,7 +208,13 @@ export default function NotificationSettingsPage() {
 
             {permission === "granted" && (
               <Button
-                onClick={showTestNotification}
+                onClick={() => {
+                  sendTestNotification({
+                    token: token || "",
+                    title: "Test Notification",
+                    body: "This is a test notification",
+                  });
+                }}
                 variant="outline"
                 className="gap-2"
               >
@@ -266,7 +275,7 @@ export default function NotificationSettingsPage() {
       </Card>
 
       {/* Topic Subscriptions */}
-      <TopicSubscriptions fcmToken={fcmToken} />
+      <TopicSubscriptions token={token} />
 
       {/* Information Card */}
       <Card>

@@ -43,8 +43,13 @@ export function NotificationProvider({
  * Shows a banner to request notification permission if not granted
  */
 export function NotificationPermissionBanner() {
-  const { permission, isSupported, requestPermission, isLoading } =
-    useWebPushNotifications();
+  const {
+    permission,
+    isSupported,
+    requestPermission,
+    isLoading,
+    setPermission,
+  } = useWebPushNotifications();
 
   // Don't show banner if notifications not supported or already granted/denied
   if (!isSupported || permission === "granted" || permission === "denied") {
@@ -72,8 +77,8 @@ export function NotificationPermissionBanner() {
             size="sm"
             variant="ghost"
             onClick={() => {
-              // Hide banner by setting permission to denied in local state
               toast.info("يمكنك تفعيل الإشعارات لاحقاً من الإعدادات");
+              setPermission("denied");
             }}
           >
             <X className="h-4 w-4" />
@@ -83,4 +88,3 @@ export function NotificationPermissionBanner() {
     </div>
   );
 }
-

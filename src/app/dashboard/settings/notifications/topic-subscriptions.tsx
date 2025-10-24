@@ -22,19 +22,19 @@ import { useWebPushNotifications } from "@/hooks/useWebPushNotifications";
 
 interface TopicSubscriptionProps {
   userRole?: string;
-  fcmToken?: string | null;
+  token?: string | null;
 }
 
 export function TopicSubscriptions({
   userRole,
-  fcmToken: fcmTokenProp,
+  token: tokenProp,
 }: TopicSubscriptionProps) {
-  const { fcmToken: fcmTokenHook, permission } = useWebPushNotifications();
+  const { token: tokenHook, permission } = useWebPushNotifications();
   const subscribeTopicMutation = useSubscribeTopic();
   const unsubscribeTopicMutation = useUnsubscribeTopic();
 
   // Use prop token if provided, otherwise use hook token
-  const fcmToken = fcmTokenProp || fcmTokenHook;
+  const token = tokenProp || tokenHook;
 
   const [subscribedTopics, setSubscribedTopics] = useState<string[]>([
     // Default subscriptions based on role
@@ -67,14 +67,14 @@ export function TopicSubscriptions({
   ];
 
   const handleSubscribe = async (topic: string) => {
-    if (!fcmToken) {
+    if (!token) {
       toast.error("يجب تفعيل الإشعارات أولاً");
       return;
     }
 
     try {
       await subscribeTopicMutation.mutateAsync({
-        token: fcmToken,
+        token: token || "",
         topic: topic,
       });
 
@@ -86,14 +86,14 @@ export function TopicSubscriptions({
   };
 
   const handleUnsubscribe = async (topic: string) => {
-    if (!fcmToken) {
+    if (!token) {
       toast.error("يجب تفعيل الإشعارات أولاً");
       return;
     }
 
     try {
       await unsubscribeTopicMutation.mutateAsync({
-        token: fcmToken,
+        token: token || "",
         topic: topic,
       });
 
