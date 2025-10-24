@@ -31,7 +31,7 @@ interface RequestDetailsModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   request: MaintenanceRequest;
-  userRole: UserRole;
+  userRole?: UserRole;
   onEdit: () => void;
   onDelete: () => void;
   onAssign: () => void;
@@ -128,7 +128,7 @@ export function RequestDetailsModal({
             إغلاق
           </Button>
 
-          {canEdit(userRole) && (
+          {userRole && canEdit(userRole) && (
             <>
               {request.status === "SUBMITTED" && canAssign(userRole) && (
                 <Button onClick={onAssign} className="gap-2">

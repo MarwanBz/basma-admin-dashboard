@@ -24,16 +24,16 @@ export function TopicSubscriptions() {
 
   const subscribeMutation = useSubscribeTopic();
   const unsubscribeMutation = useUnsubscribeTopic();
-  const { fcmToken } = useWebPushNotifications();
+  const { token } = useWebPushNotifications();
 
   const defaultTopics = Object.values(NOTIFICATION_TOPIC);
 
   // Auto-populate device token when FCM token is available
   useEffect(() => {
-    if (fcmToken && !deviceToken) {
-      setDeviceToken(fcmToken);
+    if (token && !deviceToken) {
+      setDeviceToken(token);
     }
-  }, [fcmToken, deviceToken]);
+  }, [token, deviceToken]);
 
   const handleCopyToken = () => {
     if (deviceToken) {
@@ -96,7 +96,7 @@ export function TopicSubscriptions() {
         <div className="flex items-center justify-between">
           <Label htmlFor="deviceToken">رمز الجهاز (FCM Token)</Label>
           <div className="flex gap-2">
-            {fcmToken && deviceToken === fcmToken && (
+            {token && deviceToken === token && (
               <Badge variant="secondary" className="gap-1">
                 <Check className="h-3 w-3" />
                 تم التعبئة تلقائياً
@@ -123,7 +123,7 @@ export function TopicSubscriptions() {
           className="font-mono text-sm"
         />
         <p className="text-xs text-muted-foreground">
-          {fcmToken
+          {token
             ? "تم تعبئة رمز جهازك الحالي تلقائياً. يمكنك تغييره لاختبار أجهزة أخرى."
             : "يمكنك الحصول على رمز الجهاز من التطبيق المحمول أو من قائمة الأجهزة المسجلة أعلاه"}
         </p>

@@ -37,7 +37,7 @@ import { useUpdateRequestStatus } from "@/hooks/useRequests";
 interface StatusSelectProps {
   currentStatus: RequestStatus;
   requestId: string;
-  userRole: UserRole;
+  userRole?: UserRole;
   onStatusChange?: (requestId: string, newStatus: RequestStatus) => void;
   disabled?: boolean;
 }
@@ -58,8 +58,10 @@ export function StatusSelect({
 
   const updateStatusMutation = useUpdateRequestStatus();
 
-  const availableStatuses = getAvailableStatuses(userRole, currentStatus);
-  const canUpdate = canUpdateStatus(userRole) && !disabled;
+  const availableStatuses = userRole
+    ? getAvailableStatuses(userRole, currentStatus)
+    : [];
+  const canUpdate = userRole ? canUpdateStatus(userRole) && !disabled : false;
 
   const handleStatusSelect = (newStatus: RequestStatus) => {
     setSelectedStatus(newStatus);
@@ -129,7 +131,10 @@ export function StatusSelect({
   return (
     <>
       <DropdownMenu>
-        <DropdownMenuTrigger asChild className="bg-transparent border-none shadow-none">
+        <DropdownMenuTrigger
+          asChild
+          className="bg-transparent border-none shadow-none"
+        >
           <Button
             variant="outline"
             className="h-8 gap-2"

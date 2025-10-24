@@ -4,7 +4,6 @@ import { MaintenanceRequest, TabItem } from "@/types/request";
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { RequestTable } from "./request-table";
 
 interface RequestTabsProps {
   tabs: TabItem[];
@@ -49,14 +48,14 @@ export function RequestTabs({
         </div>
       </div>
 
-      <RequestTable
+      {/* <RequestTable
         requests={requests}
         onAssign={onAssign}
         onView={onView}
         onEdit={onEdit}
         onDelete={onDelete}
         onStatusChange={onStatusChange}
-      />
+      /> */}
 
       {requests.length === 0 && (
         <div className="text-center py-12">
