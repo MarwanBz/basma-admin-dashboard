@@ -24,6 +24,9 @@ firebase.initializeApp({
 // Get messaging instance
 const messaging = firebase.messaging();
 
+// Set VAPID key for web push notifications
+messaging.useVapidKey("9wN2YsfyrcEOSQsoZQmgeQPzNVbvZAezUxARBcbd304");
+
 // Handle background messages
 messaging.onBackgroundMessage((payload) => {
   console.log("Received background message:", payload);
