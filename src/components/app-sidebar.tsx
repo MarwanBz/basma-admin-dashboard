@@ -42,6 +42,7 @@ import { ChevronsUpDown } from "lucide-react";
 import { clearTokens } from "@/apis/token";
 import { useRoleGuard } from "@/hooks/useRoleGuard";
 import { useRouter } from "next/navigation";
+import { useSidebar } from "@/components/ui/sidebar";
 
 interface NavItem {
   label: string;
@@ -54,6 +55,7 @@ interface NavItem {
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const router = useRouter();
   const { user } = useRoleGuard([]);
+  const { state } = useSidebar();
 
   const handleLogout = async () => {
     try {
@@ -124,11 +126,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       disabled: true,
     },
     {
-      label: "إعدادات النظام",
+      label: "الإعدادات",
       icon: <Settings className="h-4 w-4" />,
-      href: "/dashboard/settings",
+      href: "/dashboard/settings/fcm",
       roles: ["SUPER_ADMIN"],
-      disabled: true,
+      disabled: false,
     },
     {
       label: "الأمان والسجلات",
@@ -218,15 +220,19 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                       {user?.name?.charAt(0) || "U"}
                     </AvatarFallback>
                   </Avatar>
-                  <div className="grid flex-1 text-right text-sm leading-tight">
-                    <span className="truncate font-medium">
-                      {user?.name || "المستخدم"}
-                    </span>
-                    <span className="truncate text-xs">
-                      {user?.email || "user@example.com"}
-                    </span>
-                  </div>
-                  <ChevronsUpDown className="me-auto size-4" />
+                  {state === "expanded" && (
+                    <>
+                      <div className="grid flex-1 text-right text-sm leading-tight">
+                        <span className="truncate font-medium">
+                          {user?.name || "المستخدم"}
+                        </span>
+                        <span className="truncate text-xs">
+                          {user?.email || "user@example.com"}
+                        </span>
+                      </div>
+                      <ChevronsUpDown className="me-auto size-4" />
+                    </>
+                  )}
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
               <DropdownMenuContent
