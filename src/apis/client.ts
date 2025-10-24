@@ -14,17 +14,29 @@ function createAxiosClient(): AxiosInstance {
 
   // Add token to every request
   instance.interceptors.request.use(async (config) => {
+    console.log("🌐 AXIOS REQUEST:", config.url, new Date().toISOString());
     const tokens = await getTokens();
 
     if (tokens.accessToken) {
       config.headers.Authorization = `Bearer ${tokens.accessToken}`;
+      console.log("🌐 AXIOS: Using access token");
+    } else {
+      console.log("🌐 AXIOS: No access token available");
     }
     return config;
   });
 
   instance.interceptors.response.use(
-    (response) => response,
+    (response) => {
+      console.log("🌐 AXIOS RESPONSE SUCCESS:", response.config.url);
+      return response;
+    },
     async (error: AxiosError) => {
+      console.log(
+        "🌐 AXIOS RESPONSE ERROR:",
+        error.config?.url,
+        error.response?.status
+      );
       const originalRequest = error.config as AxiosRequestConfig & {
         _retry?: boolean;
       };
@@ -32,16 +44,25 @@ function createAxiosClient(): AxiosInstance {
 
       // Attempt refresh via cookie-based flow once for 401 errors
       if (status === 401 && !originalRequest?._retry) {
+        console.log("🌐 AXIOS: 401 error, attempting token refresh");
         originalRequest._retry = true;
         try {
           const refreshed = await refreshAccessToken(instance);
           if (refreshed) {
+            console.log(
+              "🌐 AXIOS: Token refreshed successfully, retrying request"
+            );
             return instance(originalRequest);
           }
         } catch {
-          // fallthrough to logout
+          console.log("🌐 AXIOS: Token refresh failed");
         }
-        clearTokens();
+        // Clear tokens and redirect to login if refresh fails
+        console.log("🌐 AXIOS: Clearing tokens and redirecting to login");
+        await clearTokens();
+        if (typeof window !== "undefined") {
+          window.location.href = "/auth/login";
+        }
       }
       return Promise.reject(error);
     }

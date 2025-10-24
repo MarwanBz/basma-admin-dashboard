@@ -1,22 +1,37 @@
 import { NextRequest, NextResponse } from "next/server";
 
 export async function middleware(request: NextRequest) {
+  console.log(
+    "🔒 MIDDLEWARE EXECUTING:",
+    request.url,
+    new Date().toISOString()
+  );
+
   const { pathname } = request.nextUrl;
 
   // Only protect /dashboard routes
   if (!pathname.startsWith("/dashboard")) {
+    console.log("🔒 MIDDLEWARE: Non-dashboard route, allowing");
     return NextResponse.next();
   }
 
-  // Check for access token in cookies
+  // Check for any authentication tokens (access or refresh)
   const accessToken = request.cookies.get("access_token")?.value;
+  const refreshToken = request.cookies.get("refresh_token")?.value;
 
-  // If no token and trying to access dashboard, redirect to login
-  if (!accessToken) {
+  console.log("🔒 MIDDLEWARE: Tokens found", {
+    hasAccessToken: !!accessToken,
+    hasRefreshToken: !!refreshToken,
+  });
+
+  // If no tokens at all, redirect to login
+  if (!accessToken && !refreshToken) {
+    console.log("🔒 MIDDLEWARE: No tokens, redirecting to login");
     return NextResponse.redirect(new URL("/auth/login", request.url));
   }
 
-  // Token exists, allow access and let components handle role-based authorization
+  console.log("🔒 MIDDLEWARE: Allowing access, page will load");
+  // Allow access even with expired access token - let API client handle refresh
   return NextResponse.next();
 }
 
