@@ -5,6 +5,7 @@ import * as React from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   BarChart3,
+  Bell,
   Building,
   ClipboardList,
   Database,
@@ -263,6 +264,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={() =>
+                    router.push("/dashboard/settings/notifications")
+                  }
+                  className="flex-row-reverse"
+                >
+                  <Bell className="me-2 h-4 w-4" />
+                  إعدادات الإشعارات
+                </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={handleLogout}
                   className="flex-row-reverse"

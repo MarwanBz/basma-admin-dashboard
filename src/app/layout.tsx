@@ -1,5 +1,10 @@
 import "./globals.css";
 
+import {
+  NotificationPermissionBanner,
+  NotificationProvider,
+} from "@/components/NotificationProvider";
+
 import type { Metadata } from "next";
 import { QueryProvider } from "@apis/query";
 import { Tajawal } from "next/font/google";
@@ -26,7 +31,12 @@ export default function RootLayout({
       <body
         className={`${tajawal.variable} font-sans bg-background text-foreground`}
       >
-        <QueryProvider>{children}</QueryProvider>
+        <QueryProvider>
+          <NotificationProvider>
+            {children}
+            <NotificationPermissionBanner />
+          </NotificationProvider>
+        </QueryProvider>
         <Toaster />
       </body>
     </html>

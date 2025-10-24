@@ -1,7 +1,8 @@
 "use client";
 
 import { Card, CardContent } from "@/components/ui/card";
-import { Check, Loader2, Plus, X } from "lucide-react";
+import { Check, Copy, Loader2, Plus, X } from "lucide-react";
+import { useEffect, useState } from "react";
 import {
   useSubscribeTopic,
   useUnsubscribeTopic,
@@ -14,7 +15,7 @@ import { Label } from "@/components/ui/label";
 import { NOTIFICATION_TOPIC } from "@/constants/app-constants";
 import { getNotificationTopicLabel } from "@/constants/translations";
 import { toast } from "sonner";
-import { useState } from "react";
+import { useWebPushNotifications } from "@/hooks/useWebPushNotifications";
 
 export function TopicSubscriptions() {
   const [deviceToken, setDeviceToken] = useState("");
@@ -23,8 +24,23 @@ export function TopicSubscriptions() {
 
   const subscribeMutation = useSubscribeTopic();
   const unsubscribeMutation = useUnsubscribeTopic();
+  const { fcmToken } = useWebPushNotifications();
 
   const defaultTopics = Object.values(NOTIFICATION_TOPIC);
+
+  // Auto-populate device token when FCM token is available
+  useEffect(() => {
+    if (fcmToken && !deviceToken) {
+      setDeviceToken(fcmToken);
+    }
+  }, [fcmToken, deviceToken]);
+
+  const handleCopyToken = () => {
+    if (deviceToken) {
+      navigator.clipboard.writeText(deviceToken);
+      toast.success("تم نسخ رمز الجهاز");
+    }
+  };
 
   const handleSubscribe = async (topic: string) => {
     if (!deviceToken.trim()) {
@@ -77,7 +93,28 @@ export function TopicSubscriptions() {
     <div className="space-y-6">
       {/* Device Token Input */}
       <div className="space-y-2">
-        <Label htmlFor="deviceToken">رمز الجهاز (FCM Token)</Label>
+        <div className="flex items-center justify-between">
+          <Label htmlFor="deviceToken">رمز الجهاز (FCM Token)</Label>
+          <div className="flex gap-2">
+            {fcmToken && deviceToken === fcmToken && (
+              <Badge variant="secondary" className="gap-1">
+                <Check className="h-3 w-3" />
+                تم التعبئة تلقائياً
+              </Badge>
+            )}
+            {deviceToken && (
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={handleCopyToken}
+                className="h-6 gap-1"
+              >
+                <Copy className="h-3 w-3" />
+                نسخ
+              </Button>
+            )}
+          </div>
+        </div>
         <Input
           id="deviceToken"
           value={deviceToken}
@@ -86,8 +123,9 @@ export function TopicSubscriptions() {
           className="font-mono text-sm"
         />
         <p className="text-xs text-muted-foreground">
-          يمكنك الحصول على رمز الجهاز من التطبيق المحمول أو من قائمة الأجهزة
-          المسجلة أعلاه
+          {fcmToken
+            ? "تم تعبئة رمز جهازك الحالي تلقائياً. يمكنك تغييره لاختبار أجهزة أخرى."
+            : "يمكنك الحصول على رمز الجهاز من التطبيق المحمول أو من قائمة الأجهزة المسجلة أعلاه"}
         </p>
       </div>
 
