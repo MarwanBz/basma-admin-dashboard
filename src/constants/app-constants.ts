@@ -60,6 +60,41 @@ export const BUILDING_STATUS = {
   MAINTENANCE: "MAINTENANCE",
 } as const;
 
+// Notification Platform Constants
+export const NOTIFICATION_PLATFORM = {
+  IOS: "IOS",
+  ANDROID: "ANDROID",
+  WEB: "WEB",
+} as const;
+
+// Notification Target Role Constants
+export const NOTIFICATION_TARGET_ROLE = {
+  ALL: "ALL",
+  CUSTOMER: "CUSTOMER",
+  TECHNICIAN: "TECHNICIAN",
+  MAINTENANCE_ADMIN: "MAINTENANCE_ADMIN",
+  BASMA_ADMIN: "BASMA_ADMIN",
+  SUPER_ADMIN: "SUPER_ADMIN",
+} as const;
+
+// Notification Topic Constants
+export const NOTIFICATION_TOPIC = {
+  ALL_USERS: "all-users",
+  MAINTENANCE_UPDATES: "maintenance-updates",
+  CHAT_MESSAGES: "chat-messages",
+  ANNOUNCEMENTS: "announcements",
+} as const;
+
+// Notification Type Constants
+export const NOTIFICATION_TYPE = {
+  REQUEST_STATUS_CHANGE: "request_status_change",
+  REQUEST_ASSIGNED: "request_assigned",
+  REQUEST_COMMENT: "request_comment",
+  CHAT_MESSAGE: "chat_message",
+  ANNOUNCEMENT: "announcement",
+  SYSTEM_UPDATE: "system_update",
+} as const;
+
 // Type definitions for type safety
 export type RequestStatus =
   (typeof REQUEST_STATUS)[keyof typeof REQUEST_STATUS];
@@ -71,3 +106,11 @@ export type HttpStatusCode =
 export type ErrorCode = (typeof ERROR_CODE)[keyof typeof ERROR_CODE];
 export type BuildingStatus =
   (typeof BUILDING_STATUS)[keyof typeof BUILDING_STATUS];
+export type NotificationPlatform =
+  (typeof NOTIFICATION_PLATFORM)[keyof typeof NOTIFICATION_PLATFORM];
+export type NotificationTargetRole =
+  (typeof NOTIFICATION_TARGET_ROLE)[keyof typeof NOTIFICATION_TARGET_ROLE];
+export type NotificationTopic =
+  (typeof NOTIFICATION_TOPIC)[keyof typeof NOTIFICATION_TOPIC];
+export type NotificationType =
+  (typeof NOTIFICATION_TYPE)[keyof typeof NOTIFICATION_TYPE];

@@ -9,12 +9,20 @@ import {
   HTTP_STATUS_CODE,
   ERROR_CODE,
   BUILDING_STATUS,
+  NOTIFICATION_PLATFORM,
+  NOTIFICATION_TARGET_ROLE,
+  NOTIFICATION_TOPIC,
+  NOTIFICATION_TYPE,
   type RequestStatus,
   type RequestPriority,
   type UserRole,
   type HttpStatusCode,
   type ErrorCode,
   type BuildingStatus,
+  type NotificationPlatform,
+  type NotificationTargetRole,
+  type NotificationTopic,
+  type NotificationType,
 } from "./app-constants";
 
 // Request Status Labels
@@ -136,4 +144,74 @@ export function getBuildingStatusLabel(status: BuildingStatus): string {
 
 export function getBuildingStatusColor(status: BuildingStatus): string {
   return buildingStatusColors[status] || "bg-gray-100 text-gray-800";
+}
+
+// Notification Platform Labels
+export const notificationPlatformLabels: Record<string, string> = {
+  [NOTIFICATION_PLATFORM.IOS]: "iOS",
+  [NOTIFICATION_PLATFORM.ANDROID]: "أندرويد",
+  [NOTIFICATION_PLATFORM.WEB]: "ويب",
+};
+
+// Notification Target Role Labels
+export const notificationTargetRoleLabels: Record<string, string> = {
+  [NOTIFICATION_TARGET_ROLE.ALL]: "الجميع",
+  [NOTIFICATION_TARGET_ROLE.CUSTOMER]: "العملاء",
+  [NOTIFICATION_TARGET_ROLE.TECHNICIAN]: "الفنيين",
+  [NOTIFICATION_TARGET_ROLE.MAINTENANCE_ADMIN]: "مدراء الصيانة",
+  [NOTIFICATION_TARGET_ROLE.BASMA_ADMIN]: "مدراء بسمة",
+  [NOTIFICATION_TARGET_ROLE.SUPER_ADMIN]: "المدراء التنفيذيين",
+};
+
+// Notification Topic Labels
+export const notificationTopicLabels: Record<string, string> = {
+  [NOTIFICATION_TOPIC.ALL_USERS]: "جميع المستخدمين",
+  [NOTIFICATION_TOPIC.MAINTENANCE_UPDATES]: "تحديثات الصيانة",
+  [NOTIFICATION_TOPIC.CHAT_MESSAGES]: "رسائل الدردشة",
+  [NOTIFICATION_TOPIC.ANNOUNCEMENTS]: "الإعلانات",
+};
+
+// Notification Type Labels
+export const notificationTypeLabels: Record<string, string> = {
+  [NOTIFICATION_TYPE.REQUEST_STATUS_CHANGE]: "تغيير حالة الطلب",
+  [NOTIFICATION_TYPE.REQUEST_ASSIGNED]: "تعيين فني",
+  [NOTIFICATION_TYPE.REQUEST_COMMENT]: "تعليق جديد",
+  [NOTIFICATION_TYPE.CHAT_MESSAGE]: "رسالة دردشة",
+  [NOTIFICATION_TYPE.ANNOUNCEMENT]: "إعلان",
+  [NOTIFICATION_TYPE.SYSTEM_UPDATE]: "تحديث النظام",
+};
+
+// Notification Success/Error Messages
+export const notificationMessages = {
+  deviceRegistered: "تم تسجيل الجهاز بنجاح",
+  deviceUnregistered: "تم إلغاء تسجيل الجهاز بنجاح",
+  topicSubscribed: "تم الاشتراك في الموضوع بنجاح",
+  topicUnsubscribed: "تم إلغاء الاشتراك من الموضوع بنجاح",
+  announcementSent: "تم إرسال الإعلان بنجاح",
+  testNotificationSent: "تم إرسال الإشعار التجريبي بنجاح",
+  error: "حدث خطأ أثناء العملية",
+  invalidToken: "رمز الجهاز غير صالح",
+  unauthorized: "غير مصرح لك بهذه العملية",
+  deviceNotFound: "الجهاز غير موجود",
+};
+
+// Notification Helper Functions
+export function getNotificationPlatformLabel(
+  platform: NotificationPlatform
+): string {
+  return notificationPlatformLabels[platform] || platform;
+}
+
+export function getNotificationTargetRoleLabel(
+  role: NotificationTargetRole
+): string {
+  return notificationTargetRoleLabels[role] || role;
+}
+
+export function getNotificationTopicLabel(topic: NotificationTopic): string {
+  return notificationTopicLabels[topic] || topic;
+}
+
+export function getNotificationTypeLabel(type: NotificationType): string {
+  return notificationTypeLabels[type] || type;
 }
