@@ -26,8 +26,8 @@ export async function getUsers(params?: {
 
   const queryString = searchParams.toString();
   const url = queryString
-    ? `super-admin/users?${queryString}`
-    : "super-admin/users";
+    ? `administrators/users?${queryString}`
+    : "administrators/users";
 
   const response = await apiClient.get<GetUsersResponse>(url);
   return response.data;
@@ -38,7 +38,7 @@ export async function getUsers(params?: {
  */
 export async function getUserById(id: string): Promise<ApiResponse<User>> {
   const response = await apiClient.get<ApiResponse<User>>(
-    `super-admin/users/${id}`
+    `administrators/users/${id}`
   );
   return response.data;
 }
@@ -50,7 +50,7 @@ export async function createUser(
   data: CreateUserRequest
 ): Promise<ApiResponse<User>> {
   const response = await apiClient.post<ApiResponse<User>>(
-    "super-admin/users",
+    "administrators/users",
     data
   );
   return response.data;
@@ -64,7 +64,7 @@ export async function updateUser(
   data: UpdateUserRequest
 ): Promise<ApiResponse<User>> {
   const response = await apiClient.put<ApiResponse<User>>(
-    `super-admin/users/${id}`,
+    `administrators/users/${id}`,
     data
   );
   return response.data;
@@ -75,7 +75,7 @@ export async function updateUser(
  */
 export async function deleteUser(id: string): Promise<ApiResponse<null>> {
   const response = await apiClient.delete<ApiResponse<null>>(
-    `super-admin/users/${id}`
+    `administrators/users/${id}`
   );
   return response.data;
 }
