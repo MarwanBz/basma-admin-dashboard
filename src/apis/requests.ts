@@ -55,7 +55,7 @@ export async function getRequests(params?: {
   if (params?.dateTo) searchParams.append("dateTo", params.dateTo);
 
   const queryString = searchParams.toString();
-  const url = queryString ? `requests?${queryString}` : "requests";
+  const url = queryString ? `maintenance-requests?${queryString}` : "maintenance-requests";
 
   const response = await apiClient.get<GetRequestsResponse>(url);
   return response.data;
@@ -68,7 +68,7 @@ export async function getRequestById(
   id: string
 ): Promise<ApiResponse<MaintenanceRequest>> {
   const response = await apiClient.get<ApiResponse<MaintenanceRequest>>(
-    `requests/${id}`
+    `maintenance-requests/${id}`
   );
   return response.data;
 }
@@ -80,7 +80,7 @@ export async function createRequest(
   data: CreateRequestRequest
 ): Promise<ApiResponse<MaintenanceRequest>> {
   const response = await apiClient.post<ApiResponse<MaintenanceRequest>>(
-    "requests",
+    "maintenance-requests",
     data
   );
   return response.data;
@@ -94,7 +94,7 @@ export async function updateRequest(
   data: UpdateRequestRequest
 ): Promise<ApiResponse<MaintenanceRequest>> {
   const response = await apiClient.put<ApiResponse<MaintenanceRequest>>(
-    `requests/${id}`,
+    `maintenance-requests/${id}`,
     data
   );
   return response.data;
@@ -104,7 +104,7 @@ export async function updateRequest(
  * Delete request
  */
 export async function deleteRequest(id: string): Promise<ApiResponse<null>> {
-  const response = await apiClient.delete<ApiResponse<null>>(`requests/${id}`);
+  const response = await apiClient.delete<ApiResponse<null>>(`maintenance-requests/${id}`);
   return response.data;
 }
 
@@ -116,7 +116,7 @@ export async function assignTechnician(
   data: AssignTechnicianRequest
 ): Promise<ApiResponse<MaintenanceRequest>> {
   const response = await apiClient.post<ApiResponse<MaintenanceRequest>>(
-    `requests/${requestId}/assign`,
+    `maintenance-requests/${requestId}/assign`,
     data
   );
   return response.data;
@@ -130,7 +130,7 @@ export async function updateRequestStatus(
   data: UpdateStatusRequest
 ): Promise<ApiResponse<MaintenanceRequest>> {
   const response = await apiClient.patch<ApiResponse<MaintenanceRequest>>(
-    `requests/${requestId}/status`,
+    `maintenance-requests/${requestId}/status`,
     data
   );
   return response.data;

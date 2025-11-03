@@ -1,7 +1,7 @@
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig } from "axios";
 import { clearTokens, getTokens, setTokens } from "@apis/token";
 
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "/api";
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "/api/v1";
 
 function createAxiosClient(): AxiosInstance {
   const instance = axios.create({

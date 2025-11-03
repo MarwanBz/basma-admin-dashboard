@@ -14,7 +14,7 @@ import { apiClient } from "./client";
  */
 export async function getBuildingConfigs(): Promise<GetBuildingConfigsResponse> {
   const response =
-    await apiClient.get<GetBuildingConfigsResponse>(`building-configs`);
+    await apiClient.get<GetBuildingConfigsResponse>(`buildings`);
   return response.data;
 }
 
@@ -25,7 +25,7 @@ export async function getBuildingConfigByName(
   buildingName: string
 ): Promise<GetBuildingConfigResponse> {
   const response = await apiClient.get<GetBuildingConfigResponse>(
-    `building-configs/${buildingName}`
+    `buildings/${buildingName}`
   );
   return response.data;
 }
@@ -37,7 +37,7 @@ export async function createBuildingConfig(
   data: CreateBuildingConfigRequest
 ): Promise<GetBuildingConfigResponse> {
   const response = await apiClient.post<GetBuildingConfigResponse>(
-    "building-configs",
+    "buildings",
     data
   );
   return response.data;
@@ -51,7 +51,7 @@ export async function updateBuildingConfig(
   data: UpdateBuildingConfigRequest
 ): Promise<GetBuildingConfigResponse> {
   const response = await apiClient.put<GetBuildingConfigResponse>(
-    `building-configs/${buildingName}`,
+    `buildings/${buildingName}`,
     data
   );
   return response.data;
@@ -66,7 +66,7 @@ export async function deleteBuildingConfig(
   const response = await apiClient.delete<{
     success: boolean;
     message: string;
-  }>(`building-configs/${buildingName}`);
+  }>(`buildings/${buildingName}`);
   return response.data;
 }
 
@@ -75,7 +75,7 @@ export async function deleteBuildingConfig(
  */
 export async function getBuildingStatistics(): Promise<GetBuildingStatisticsResponse> {
   const response = await apiClient.get<GetBuildingStatisticsResponse>(
-    `building-configs/statistics`
+    `buildings/statistics`
   );
   return response.data;
 }
@@ -87,7 +87,7 @@ export async function getNextIdentifier(
   buildingName: string
 ): Promise<GetNextIdentifierResponse> {
   const response = await apiClient.get<GetNextIdentifierResponse>(
-    `building-configs/${buildingName}/next-identifier`
+    `buildings/${buildingName}/next-identifier`
   );
   return response.data;
 }
@@ -99,7 +99,7 @@ export async function resetSequence(
   buildingName: string
 ): Promise<{ success: boolean; message: string }> {
   const response = await apiClient.post<{ success: boolean; message: string }>(
-    `building-configs/${buildingName}/reset-sequence`,
+    `buildings/${buildingName}/reset-sequence`,
     {}
   );
   return response.data;
