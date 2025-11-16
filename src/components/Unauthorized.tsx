@@ -30,7 +30,7 @@ export function Unauthorized() {
             العودة للخلف
           </Button>
 
-          <Button onClick={() => router.push("/auth/login")}>
+          <Button onClick={() => router.push("/login")}>
             تسجيل الخروج
           </Button>
         </div>
