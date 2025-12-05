@@ -8,12 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-// Removed unused imports from notifications types
-import {
-  useSubscribeTopic,
-  useUnsubscribeTopic,
-} from "@/hooks/useNotifications";
-
+import { useSubscribeTopic } from "@/hooks/useNotifications";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -21,29 +16,32 @@ import { useState } from "react";
 import { useWebPushNotifications } from "@/hooks/useWebPushNotifications";
 
 interface TopicSubscriptionProps {
-  userRole?: string;
   token?: string | null;
 }
 
 export function TopicSubscriptions({
-  userRole,
   token: tokenProp,
 }: TopicSubscriptionProps) {
-  const { token: tokenHook, permission } = useWebPushNotifications();
+  const {
+    token: tokenHook,
+    permission,
+    requestPermission,
+    getToken,
+    setPermission,
+  } = useWebPushNotifications();
   const subscribeTopicMutation = useSubscribeTopic();
-  const unsubscribeTopicMutation = useUnsubscribeTopic();
 
   // Use prop token if provided, otherwise use hook token
-  const token = tokenProp || tokenHook;
+  let token = tokenProp || tokenHook;
 
-  const [subscribedTopics, setSubscribedTopics] = useState<string[]>([
-    // Default subscriptions based on role
-    ...(userRole ? [`role-${userRole.toLowerCase()}`] : []),
-    "all-users",
-    "announcements",
-  ]);
+  const [subscribedTopics, setSubscribedTopics] = useState<string[]>([]);
 
   const availableTopics = [
+    {
+      key: "job-hunting",
+      label: "فرص العمل",
+      description: "إشعارات حول فرص العمل الجديدة",
+    },
     {
       key: "all-users",
       label: "جميع المستخدمين",
@@ -67,14 +65,29 @@ export function TopicSubscriptions({
   ];
 
   const handleSubscribe = async (topic: string) => {
-    if (!token) {
-      toast.error("يجب تفعيل الإشعارات أولاً");
-      return;
+    if (permission !== "granted") {
+      const permissionGranted = await requestPermission();
+      if (!permissionGranted) {
+        toast.error("يجب السماح بالإشعارات للاشتراك");
+        return;
+      }
+      // re-render the component to remove the disabled state
+      setPermission(Notification.permission);
     }
+
+    if (!token) {
+      token = await getToken();
+      if (!token) {
+        toast.error("لم يتم العثور على رمز مميز. حاول تحديث الصفحة.");
+        return;
+      }
+    }
+
+    console.log("Subscribing to topic:", { token, topic });
 
     try {
       await subscribeTopicMutation.mutateAsync({
-        token: token || "",
+        token: token,
         topic: topic,
       });
 
@@ -85,48 +98,7 @@ export function TopicSubscriptions({
     }
   };
 
-  const handleUnsubscribe = async (topic: string) => {
-    if (!token) {
-      toast.error("يجب تفعيل الإشعارات أولاً");
-      return;
-    }
-
-    try {
-      await unsubscribeTopicMutation.mutateAsync({
-        token: token || "",
-        topic: topic,
-      });
-
-      setSubscribedTopics((prev) => prev.filter((t) => t !== topic));
-      toast.success(`تم إلغاء الاشتراك من ${topic}`);
-    } catch {
-      toast.error("فشل في إلغاء الاشتراك");
-    }
-  };
-
   const isSubscribed = (topic: string) => subscribedTopics.includes(topic);
-
-  if (permission !== "granted") {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Bell className="h-5 w-5" />
-            إدارة الاشتراكات
-          </CardTitle>
-          <CardDescription>
-            إدارة الاشتراكات في أنواع الإشعارات المختلفة
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="text-center py-8 text-muted-foreground">
-            <BellOff className="h-12 w-12 mx-auto mb-3 opacity-50" />
-            <p>يجب تفعيل الإشعارات أولاً لإدارة الاشتراكات</p>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
 
   return (
     <Card>
@@ -165,24 +137,17 @@ export function TopicSubscriptions({
                 <Button
                   size="sm"
                   variant="outline"
-                  onClick={() => handleUnsubscribe(topic.key)}
-                  disabled={
-                    subscribeTopicMutation.isPending ||
-                    unsubscribeTopicMutation.isPending
-                  }
+                  disabled
                   className="gap-2"
                 >
-                  <BellOff className="h-4 w-4" />
-                  إلغاء الاشتراك
+                  <Check className="h-4 w-4" />
+                  تم الاشتراك
                 </Button>
               ) : (
                 <Button
                   size="sm"
                   onClick={() => handleSubscribe(topic.key)}
-                  disabled={
-                    subscribeTopicMutation.isPending ||
-                    unsubscribeTopicMutation.isPending
-                  }
+                  disabled={subscribeTopicMutation.isPending}
                   className="gap-2"
                 >
                   <Bell className="h-4 w-4" />

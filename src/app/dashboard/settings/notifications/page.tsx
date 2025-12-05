@@ -2,11 +2,9 @@
 
 import {
   Bell,
-  BellOff,
   Check,
   Copy,
   RefreshCw,
-  TestTube,
   X,
 } from "lucide-react";
 import {
@@ -23,9 +21,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { TopicSubscriptions } from "./topic-subscriptions";
-import { sendTestNotification } from "@/apis/notifications";
+import { SendNotificationForm } from "./send-notification-form";
 import { toast } from "sonner";
-import { useDevices } from "@/hooks/useNotifications";
 import { useWebPushNotifications } from "@/hooks/useWebPushNotifications";
 
 export default function NotificationSettingsPage() {
@@ -37,10 +34,6 @@ export default function NotificationSettingsPage() {
     requestPermission,
     getToken,
   } = useWebPushNotifications();
-
-  const { data: devicesResponse } = useDevices();
-  const devices = devicesResponse?.data?.devices || [];
-  const webDevices = devices.filter((d) => d.platform === "WEB");
 
   const handleCopyToken = () => {
     if (token) {
@@ -174,7 +167,7 @@ export default function NotificationSettingsPage() {
             <Bell className="h-5 w-5" />
             إدارة الإشعارات
           </CardTitle>
-          <CardDescription>تفعيل أو تعطيل الإشعارات واختبارها</CardDescription>
+          <CardDescription>تفعيل أو تعطيل الإشعارات</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {!isSupported && (
@@ -205,74 +198,12 @@ export default function NotificationSettingsPage() {
                 {isLoading ? "جاري التفعيل..." : "تفعيل الإشعارات"}
               </Button>
             )}
-
-            {permission === "granted" && (
-              <Button
-                onClick={() => {
-                  sendTestNotification({
-                    token: token || "",
-                    title: "Test Notification",
-                    body: "This is a test notification",
-                  });
-                }}
-                variant="outline"
-                className="gap-2"
-              >
-                <TestTube className="h-4 w-4" />
-                إرسال إشعار تجريبي
-              </Button>
-            )}
           </div>
         </CardContent>
       </Card>
 
-      {/* Registered Web Devices */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Bell className="h-5 w-5" />
-            الأجهزة المسجلة (الويب)
-          </CardTitle>
-          <CardDescription>
-            قائمة بأجهزة الويب المسجلة لاستقبال الإشعارات
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {webDevices.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              <BellOff className="h-12 w-12 mx-auto mb-3 opacity-50" />
-              <p>لا توجد أجهزة ويب مسجلة</p>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {webDevices.map((device) => (
-                <div
-                  key={device.id}
-                  className="border rounded-lg p-4 space-y-2"
-                >
-                  <div className="flex items-center justify-between">
-                    <Badge variant="outline">WEB</Badge>
-                    <span className="text-xs text-muted-foreground">
-                      {new Date(device.createdAt).toLocaleDateString("ar-SA")}
-                    </span>
-                  </div>
-                  {device.deviceId && (
-                    <p className="text-sm text-muted-foreground truncate">
-                      {device.deviceId}
-                    </p>
-                  )}
-                  <div className="flex items-center justify-between text-xs text-muted-foreground">
-                    <span>آخر استخدام</span>
-                    <span>
-                      {new Date(device.lastUsedAt).toLocaleDateString("ar-SA")}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      {/* Send Notification to Topic */}
+      <SendNotificationForm />
 
       {/* Topic Subscriptions */}
       <TopicSubscriptions token={token} />

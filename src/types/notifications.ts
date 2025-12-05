@@ -17,6 +17,7 @@ export type TargetRole =
 // Device Registration
 export interface Device {
   id: string;
+  token: string;
   platform: Platform;
   deviceId?: string;
   appVersion?: string;
@@ -113,6 +114,20 @@ export interface SendTestNotificationResponse {
   success: boolean;
   message: string;
   data: TestNotificationResult;
+}
+
+// Send to Topic
+export interface SendToTopicRequest {
+  topic: string;
+  title: string;
+  body: string;
+  data?: NotificationData;
+}
+
+export interface SendToTopicResponse {
+  success: boolean;
+  messageId?: string;
+  message?: string;
 }
 
 // Notification Topic Names (Constants)

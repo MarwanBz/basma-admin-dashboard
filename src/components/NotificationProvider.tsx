@@ -1,39 +1,87 @@
 "use client";
 
-import { Bell, X } from "lucide-react";
-
-import { Button } from "./ui/button";
+import { useEffect, useRef } from "react";
 import { toast } from "sonner";
-import { useEffect } from "react";
-import useServiceWorker from "@/hooks/useServiceWorker";
 import { useWebPushNotifications } from "@/hooks/useWebPushNotifications";
+import { useSubscribeTopic } from "@/hooks/useNotifications";
+import { onMessage } from "firebase/messaging";
+import { messaging } from "@/lib/firebase";
+import { Bell, X } from "lucide-react";
+import { Button } from "./ui/button";
 
-/**
- * NotificationProvider component
- * - Registers service worker
- * - Manages web push notifications
- * - Shows update banner when new version available
- */
 export function NotificationProvider({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const { updateAvailable, updateServiceWorker } = useServiceWorker();
-  const { permission, isSupported } = useWebPushNotifications();
+  const { requestPermission, getToken } = useWebPushNotifications();
+  const { mutateAsync: subscribe } = useSubscribeTopic();
+  const topic = "job-hunting";
+  const unsubscribeRef = useRef<(() => void) | null>(null);
 
-  // Show update banner when new version is available
   useEffect(() => {
-    if (updateAvailable) {
-      toast.info("يتوفر تحديث جديد للتطبيق", {
-        duration: Infinity,
-        action: {
-          label: "تحديث الآن",
-          onClick: () => updateServiceWorker(),
-        },
-      });
-    }
-  }, [updateAvailable, updateServiceWorker]);
+    const initializeNotifications = async () => {
+      try {
+        const granted = await requestPermission();
+
+        if (granted) {
+          const token = await getToken();
+          if (token) {
+            console.log(token);
+            try {
+              await subscribe({ token, topic });
+            } catch (error) {
+              // Silent error
+            }
+          }
+        }
+
+        if (messaging) {
+          unsubscribeRef.current = onMessage(messaging, (payload) => {
+            toast.success(
+              (payload.notification?.title || "") + " " + (payload.notification?.body || ""),
+              {
+                position: "top-center",
+                duration: 3000,
+              }
+            );
+          });
+        }
+
+        const handleServiceWorkerMessage = (event: MessageEvent) => {
+          if (event.data && event.data.type === "NOTIFICATION_CLICKED") {
+            // Handle click
+          }
+        };
+
+        if ("serviceWorker" in navigator) {
+          navigator.serviceWorker.addEventListener(
+            "message",
+            handleServiceWorkerMessage
+          );
+        }
+
+        return () => {
+          if ("serviceWorker" in navigator) {
+            navigator.serviceWorker.removeEventListener(
+              "message",
+              handleServiceWorkerMessage
+            );
+          }
+        };
+      } catch (error) {
+        // Silent error
+      }
+    };
+
+    initializeNotifications();
+
+    return () => {
+      if (unsubscribeRef.current) {
+        unsubscribeRef.current();
+      }
+    };
+  }, []);
 
   return <>{children}</>;
 }

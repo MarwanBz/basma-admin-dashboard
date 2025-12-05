@@ -4,6 +4,15 @@ import { getMessaging } from "firebase/messaging";
 import { isSupported } from "firebase/messaging";
 
 // Firebase configuration
+// const firebaseConfig = {
+//   apiKey: "AIzaSyAb3nSkBwSYTJuuP9m7b1OoXmeLZcymM2A",
+//   authDomain: "basma-maintenance.firebaseapp.com",
+//   projectId: "basma-maintenance",
+//   storageBucket: "basma-maintenance.firebasestorage.app",
+//   messagingSenderId: "924795528869",
+//   appId: "1:924795528869:web:cd99a83c0f99da12564f4c",
+// };
+
 const firebaseConfig = {
   apiKey: "AIzaSyAb3nSkBwSYTJuuP9m7b1OoXmeLZcymM2A",
   authDomain: "basma-maintenance.firebaseapp.com",
@@ -11,6 +20,7 @@ const firebaseConfig = {
   storageBucket: "basma-maintenance.firebasestorage.app",
   messagingSenderId: "924795528869",
   appId: "1:924795528869:web:cd99a83c0f99da12564f4c",
+  measurementId: "G-0CM3JPQ87B"
 };
 
 // Initialize Firebase
@@ -22,6 +32,9 @@ export const app =
 // VAPID key for web push notifications
 export const VAPID_KEY =
   "BMyZdwi-jCFJods4UAGvelm6XkdzeSEE-iUx1qlD2F2TSS4h7gJt6BBN22vYPA0iHvW3SZb-4tByyURQc15Pm6Q";
+
+// Alias for compatibility with code that uses PUBLIC_VAPID_KEY
+export const PUBLIC_VAPID_KEY = VAPID_KEY;
 
 // Token age utilities
 const TOKEN_TIMESTAMP_KEY = "fcm_token_timestamp";
@@ -52,5 +65,4 @@ export const setTokenTimestamp = () => {
 export const isMessagingSupported =
   typeof window !== "undefined" && isSupported();
 
-export const messaging = isMessagingSupported ? getMessaging(app) : null; 
-
+export const messaging = isMessagingSupported && app ? getMessaging(app) : null;
