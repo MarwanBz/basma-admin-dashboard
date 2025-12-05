@@ -61,7 +61,7 @@ function createAxiosClient(): AxiosInstance {
         console.log("🌐 AXIOS: Clearing tokens and redirecting to login");
         await clearTokens();
         if (typeof window !== "undefined") {
-          window.location.href = "/auth/login";
+          window.location.href = "/login";
         }
       }
       return Promise.reject(error);

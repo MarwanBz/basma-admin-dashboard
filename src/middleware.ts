@@ -27,7 +27,7 @@ export async function middleware(request: NextRequest) {
   // If no tokens at all, redirect to login
   if (!accessToken && !refreshToken) {
     console.log("🔒 MIDDLEWARE: No tokens, redirecting to login");
-    return NextResponse.redirect(new URL("/auth/login", request.url));
+    return NextResponse.redirect(new URL("/login", request.url));
   }
 
   console.log("🔒 MIDDLEWARE: Allowing access, page will load");

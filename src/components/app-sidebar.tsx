@@ -69,11 +69,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       }
 
       // Redirect to login page
-      router.push("/auth/login");
+      router.push("/login");
     } catch (error) {
       console.error("Error during logout:", error);
       // Still redirect even if clearing fails
-      router.push("/auth/login");
+      router.push("/login");
     }
   };
 
