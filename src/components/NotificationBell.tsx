@@ -12,14 +12,20 @@ import {
 import {
   useMarkNotificationsRead,
   useNotificationHistory,
+  NOTIFICATION_QUERY_KEYS,
 } from "@/hooks/useNotifications";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useRouter } from "next/navigation";
-import { useWebPushNotifications } from "@/hooks/useWebPushNotifications";
+import {
+  messaging,
+  useWebPushNotifications,
+} from "@/hooks/useWebPushNotifications";
+import { useQueryClient } from "@tanstack/react-query";
+import { onMessage } from "firebase/messaging";
 
 /**
  * NotificationBell component
@@ -27,6 +33,7 @@ import { useWebPushNotifications } from "@/hooks/useWebPushNotifications";
  */
 export function NotificationBell() {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const { permission, isSupported, requestPermission, isLoading } =
     useWebPushNotifications();
   const historyQuery = useNotificationHistory(50);
@@ -62,6 +69,28 @@ export function NotificationBell() {
     setHiddenIds((prev) => new Set(prev).add(id));
   };
 
+  // Refetch on window focus
+  useEffect(() => {
+    const handler = () => {
+      historyQuery.refetch();
+    };
+    window.addEventListener("focus", handler);
+    return () => window.removeEventListener("focus", handler);
+  }, [historyQuery]);
+
+  // Invalidate history when a foreground FCM message arrives
+  useEffect(() => {
+    if (!messaging) return;
+    const unsubscribe = onMessage(messaging, () => {
+      queryClient.invalidateQueries({
+        queryKey: NOTIFICATION_QUERY_KEYS.history,
+      });
+    });
+    return () => {
+      unsubscribe();
+    };
+  }, [queryClient]);
+
   const getTimeAgo = (date: Date) => {
     const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
     if (seconds < 60) return "الآن";
@@ -74,7 +103,13 @@ export function NotificationBell() {
   };
 
   return (
-    <DropdownMenu>
+    <DropdownMenu
+      onOpenChange={(open) => {
+        if (open) {
+          historyQuery.refetch();
+        }
+      }}
+    >
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon" className="relative">
           <Bell className="h-5 w-5" />

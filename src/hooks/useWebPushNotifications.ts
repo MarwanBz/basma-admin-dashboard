@@ -1,5 +1,9 @@
 import { VAPID_KEY, app, setTokenTimestamp } from "@/lib/firebase";
-import { getToken as getFCMToken, getMessaging } from "firebase/messaging";
+import {
+  getToken as getFCMToken,
+  getMessaging,
+  onMessage,
+} from "firebase/messaging";
 import { useEffect, useState } from "react";
 
 interface UseWebPushNotificationsReturn {
@@ -127,3 +131,7 @@ export function useWebPushNotifications(): UseWebPushNotificationsReturn {
     setPermission,
   };
 }
+
+// Convenience export for messaging instance (used for onMessage listeners)
+export const messaging =
+  typeof window !== "undefined" && app ? getMessaging(app) : null;
