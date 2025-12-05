@@ -8,7 +8,9 @@ import type {
   UnsubscribeTopicRequest,
 } from "@/types/notifications";
 import {
+  getNotificationHistory,
   getSubscriptions,
+  markNotificationsRead,
   registerDevice,
   sendAnnouncement,
   sendTestNotification,
@@ -22,6 +24,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 // Query Keys
 export const NOTIFICATION_QUERY_KEYS = {
   subscriptions: ["notifications", "subscriptions"] as const,
+  history: ["notifications", "history"] as const,
 };
 
 /**
@@ -124,5 +127,31 @@ export function useSendTestNotification() {
 export function useSendToTopic() {
   return useMutation({
     mutationFn: (data: SendToTopicRequest) => sendToTopic(data),
+  });
+}
+
+/**
+ * Hook to fetch notification history
+ */
+export function useNotificationHistory(limit?: number) {
+  return useQuery({
+    queryKey: [...NOTIFICATION_QUERY_KEYS.history, limit],
+    queryFn: () => getNotificationHistory(limit),
+  });
+}
+
+/**
+ * Hook to mark notifications as read
+ */
+export function useMarkNotificationsRead() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (ids: string[]) => markNotificationsRead(ids),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: NOTIFICATION_QUERY_KEYS.history,
+      });
+    },
   });
 }

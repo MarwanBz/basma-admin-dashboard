@@ -1,6 +1,6 @@
 "use client";
 
-import { Bell, BellOff, Settings, X } from "lucide-react";
+import { Bell, BellOff, Loader2, Settings, X } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,22 +9,17 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  useMarkNotificationsRead,
+  useNotificationHistory,
+} from "@/hooks/useNotifications";
+import { useMemo, useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 import { useWebPushNotifications } from "@/hooks/useWebPushNotifications";
-
-interface Notification {
-  id: string;
-  title: string;
-  body: string;
-  type: string;
-  timestamp: Date;
-  read: boolean;
-}
 
 /**
  * NotificationBell component
@@ -34,49 +29,37 @@ export function NotificationBell() {
   const router = useRouter();
   const { permission, isSupported, requestPermission, isLoading } =
     useWebPushNotifications();
+  const historyQuery = useNotificationHistory(50);
+  const markReadMutation = useMarkNotificationsRead();
+  const [hiddenIds, setHiddenIds] = useState<Set<string>>(new Set());
 
-  // Mock notifications - in production, fetch from backend
-  const [notifications, setNotifications] = useState<Notification[]>([
-    {
-      id: "1",
-      title: "طلب صيانة جديد",
-      body: "تم إنشاء طلب صيانة جديد #1234",
-      type: "request_status_change",
-      timestamp: new Date(Date.now() - 1000 * 60 * 5), // 5 minutes ago
-      read: false,
-    },
-    {
-      id: "2",
-      title: "تحديث حالة الطلب",
-      body: "تم تعيين فني للطلب #1233",
-      type: "request_assigned",
-      timestamp: new Date(Date.now() - 1000 * 60 * 30), // 30 minutes ago
-      read: false,
-    },
-    {
-      id: "3",
-      title: "إعلان جديد",
-      body: "تحديث النظام سيتم الليلة",
-      type: "announcement",
-      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2), // 2 hours ago
-      read: true,
-    },
-  ]);
+  const notifications = useMemo(() => {
+    const items = historyQuery.data?.data ?? [];
+    return items.filter((n) => !hiddenIds.has(n.id));
+  }, [historyQuery.data, hiddenIds]);
 
-  const unreadCount = notifications.filter((n) => !n.read).length;
+  const unreadCount = notifications.filter((n) => !n.isRead).length;
 
-  const markAsRead = (id: string) => {
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, read: true } : n))
-    );
+  const markAsRead = async (id: string) => {
+    try {
+      await markReadMutation.mutateAsync([id]);
+    } catch {
+      // noop - UI will refetch on error
+    }
   };
 
-  const markAllAsRead = () => {
-    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+  const markAllAsRead = async () => {
+    const ids = notifications.filter((n) => !n.isRead).map((n) => n.id);
+    if (!ids.length) return;
+    try {
+      await markReadMutation.mutateAsync(ids);
+    } catch {
+      // noop
+    }
   };
 
   const clearNotification = (id: string) => {
-    setNotifications((prev) => prev.filter((n) => n.id !== id));
+    setHiddenIds((prev) => new Set(prev).add(id));
   };
 
   const getTimeAgo = (date: Date) => {
@@ -148,7 +131,19 @@ export function NotificationBell() {
 
         {/* Notifications List */}
         <ScrollArea className="h-[300px]">
-          {notifications.length === 0 ? (
+          {historyQuery.isLoading ? (
+            <div className="flex flex-col items-center justify-center py-8 text-center">
+              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground mb-2" />
+              <p className="text-sm text-muted-foreground">
+                جاري تحميل الإشعارات...
+              </p>
+            </div>
+          ) : historyQuery.isError ? (
+            <div className="flex flex-col items-center justify-center py-8 text-center text-destructive">
+              <BellOff className="h-6 w-6 mb-2" />
+              <p className="text-sm">تعذر تحميل الإشعارات</p>
+            </div>
+          ) : notifications.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-8 text-center">
               <Bell className="h-12 w-12 text-muted-foreground/50 mb-2" />
               <p className="text-sm text-muted-foreground">لا توجد إشعارات</p>
@@ -159,12 +154,11 @@ export function NotificationBell() {
                 <div
                   key={notification.id}
                   className={`p-3 hover:bg-muted/50 cursor-pointer transition-colors ${
-                    !notification.read ? "bg-muted/30" : ""
+                    !notification.isRead ? "bg-muted/30" : ""
                   }`}
                   onClick={() => {
                     markAsRead(notification.id);
-                    // Navigate based on notification type
-                    if (notification.type.includes("request")) {
+                    if (notification.type?.includes("request")) {
                       router.push("/dashboard/requests");
                     }
                   }}
@@ -192,9 +186,9 @@ export function NotificationBell() {
                       </p>
                       <div className="flex items-center gap-2">
                         <span className="text-xs text-muted-foreground">
-                          {getTimeAgo(notification.timestamp)}
+                          {getTimeAgo(new Date(notification.createdAt))}
                         </span>
-                        {!notification.read && (
+                        {!notification.isRead && (
                           <Badge
                             variant="default"
                             className="h-4 px-1 text-[10px]"

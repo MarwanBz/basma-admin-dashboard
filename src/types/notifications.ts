@@ -80,6 +80,21 @@ export interface NotificationPayload {
   data?: NotificationData;
 }
 
+// Notification history item
+export interface NotificationHistoryItem {
+  id: string;
+  title: string;
+  body: string;
+  type?: string | null;
+  data?: NotificationData | null;
+  isRead: boolean;
+  createdAt: string;
+}
+
+export type NotificationHistoryResponse = ApiResponse<
+  NotificationHistoryItem[]
+>;
+
 // Announcement
 export interface SendAnnouncementRequest {
   title: string;

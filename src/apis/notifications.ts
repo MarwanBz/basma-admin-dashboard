@@ -1,5 +1,6 @@
 import {
   GetSubscriptionsResponse,
+  NotificationHistoryResponse,
   RegisterDeviceRequest,
   RegisterDeviceResponse,
   SendAnnouncementRequest,
@@ -58,7 +59,6 @@ export async function subscribeToTopic(
   return response.data;
 }
 
-
 /**
  * Unsubscribe a device from a specific topic
  * POST /api/v1/notifications/unsubscribe-topic
@@ -78,8 +78,9 @@ export async function unsubscribeFromTopic(
  * NOTE: Backend endpoint not yet implemented - will return error for now
  */
 export async function getSubscriptions(): Promise<GetSubscriptionsResponse> {
-  const response =
-    await apiClient.get<GetSubscriptionsResponse>("notifications/subscriptions");
+  const response = await apiClient.get<GetSubscriptionsResponse>(
+    "notifications/subscriptions"
+  );
   return response.data;
 }
 
@@ -121,6 +122,36 @@ export async function sendToTopic(
   const response = await apiClient.post<SendToTopicResponse>(
     "notifications/send-to-topic",
     data
+  );
+  return response.data;
+}
+
+/**
+ * Get notification history for current user
+ * GET /api/v1/notifications/history
+ */
+export async function getNotificationHistory(
+  limit?: number
+): Promise<NotificationHistoryResponse> {
+  const response = await apiClient.get<NotificationHistoryResponse>(
+    "notifications/history",
+    {
+      params: limit ? { limit } : undefined,
+    }
+  );
+  return response.data;
+}
+
+/**
+ * Mark notifications as read
+ * POST /api/v1/notifications/mark-read
+ */
+export async function markNotificationsRead(
+  ids: string[]
+): Promise<{ success: boolean }> {
+  const response = await apiClient.post<{ success: boolean }>(
+    "notifications/mark-read",
+    { ids }
   );
   return response.data;
 }
