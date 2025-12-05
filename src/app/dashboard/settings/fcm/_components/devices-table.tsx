@@ -44,7 +44,7 @@ export function DevicesTable() {
 
     try {
       await unregisterMutation.mutateAsync({
-        token: deviceToDelete.id, // Using device ID as token for deletion
+        token: deviceToDelete.token,
       });
       toast.success("تم إلغاء تسجيل الجهاز بنجاح");
       setDeviceToDelete(null);

@@ -102,7 +102,6 @@ export function useWebPushNotifications(): UseWebPushNotificationsReturn {
       if (fcmToken) {
         setToken(fcmToken);
         setTokenTimestamp();
-        console.log("FCM Token:", fcmToken);
       }
 
       return fcmToken;

@@ -2,6 +2,7 @@ import type {
   RegisterDeviceRequest,
   SendAnnouncementRequest,
   SendTestNotificationRequest,
+  SendToTopicRequest,
   SubscribeTopicRequest,
   UnregisterDeviceRequest,
   UnsubscribeTopicRequest,
@@ -11,6 +12,7 @@ import {
   registerDevice,
   sendAnnouncement,
   sendTestNotification,
+  sendToTopic,
   subscribeToTopic,
   unregisterDevice,
   unsubscribeFromTopic,
@@ -40,7 +42,8 @@ export function useRegisterDevice() {
 
   return useMutation({
     mutationFn: (data: RegisterDeviceRequest) => registerDevice(data),
-    onSuccess: () => {
+    onSuccess: (response, variables) => {
+      console.log("✅ Device token registered with backend:", variables.token);
       queryClient.invalidateQueries({
         queryKey: NOTIFICATION_QUERY_KEYS.subscriptions,
       });
@@ -112,5 +115,14 @@ export function useSendTestNotification() {
   return useMutation({
     mutationFn: (data: SendTestNotificationRequest) =>
       sendTestNotification(data),
+  });
+}
+
+/**
+ * Hook to send notification to a topic
+ */
+export function useSendToTopic() {
+  return useMutation({
+    mutationFn: (data: SendToTopicRequest) => sendToTopic(data),
   });
 }

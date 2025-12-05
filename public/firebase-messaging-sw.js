@@ -24,13 +24,35 @@ firebase.initializeApp({
 // Get messaging instance
 const messaging = firebase.messaging();
 
-// Set VAPID key for web push notifications
-messaging.useVapidKey("9wN2YsfyrcEOSQsoZQmgeQPzNVbvZAezUxARBcbd304");
-
 // Handle background messages
-messaging.onBackgroundMessage((payload) => {
-  console.log("Received background message:", payload);
+messaging.onBackgroundMessage(async (payload) => {
+  console.log("📬 Service Worker: Received message:", payload);
 
+  // Check if any client (tab) is currently focused/visible
+  const clientList = await self.clients.matchAll({
+    type: "window",
+    includeUncontrolled: true,
+  });
+
+  const isAppInForeground = clientList.some(
+    (client) => client.visibilityState === "visible" && client.focused
+  );
+
+  console.log("📬 Service Worker: App in foreground?", isAppInForeground);
+
+  if (isAppInForeground) {
+    // App is in foreground - send message to client for onMessage handler
+    // Note: This won't work because Firebase already routed it here
+    // Instead, we'll show a notification AND send a message to clients
+    clientList.forEach((client) => {
+      client.postMessage({
+        type: "FCM_MESSAGE",
+        payload: payload,
+      });
+    });
+  }
+
+  // Always show notification (Firebase behavior)
   const notificationTitle =
     payload.notification?.title || payload.data?.title || "إشعار جديد";
   const notificationOptions = {
@@ -122,4 +144,3 @@ self.addEventListener("activate", (event) => {
   console.log("Service Worker activating...");
   event.waitUntil(clients.claim());
 });
-
